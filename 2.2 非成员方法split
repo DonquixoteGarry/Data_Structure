@@ -1,0 +1,116 @@
+#include <iostream>
+using namespace std;
+template<class T>
+class node
+{
+public:
+	T data;
+	bool odd;//下标为奇数则为true,第一项head下标为零(false)
+	node* left;
+	node* right;
+	node() {}
+	node(T value)
+	{
+		odd = 0;
+		data = value;
+		left = NULL;
+		right = NULL;
+	}
+};
+template <class T>
+class extendedChain
+{
+public:
+	node<T>* head;
+	node<T>* tail;
+	extendedChain()
+	{
+		head = NULL;
+		tail = NULL;
+	}
+	void extend(T num)
+	{
+		node<T>* temp = new node<T>(num);
+		if (head == NULL)
+		{
+			head = tail = temp;
+			head->right = tail;
+			tail->right = head;
+			tail->left = head;
+			head->left = tail;
+			head->odd = false;
+			return;
+		}
+		else
+		{
+			tail->right = temp;
+			temp->right = head;
+			head->left = temp;
+			temp->left = tail;
+			temp->odd = (tail->odd == false ? true : false);
+			tail = tail->right;
+			return;
+		}
+	}
+	void print()
+	{
+		node<T>* j = head;
+		while (j != tail)
+		{
+			cout << j->data << "<=>";
+			j = j->right;
+		}
+		cout << tail->data;
+	}
+};
+void split(extendedChain<int> a, extendedChain<int> b, extendedChain<int> c)
+{
+	node<int>* i = c.head;
+	while (i!= c.tail)
+	{
+		if (i->odd == false)
+		{
+			b.extend(i->data);
+			cout << "下标为偶数的数'" << i->data << "'添加在b中\n";
+			cout << "此时b=  "; b.print(); cout << "  "; cout << endl;
+		}
+		else
+		{
+			a.extend(i->data);
+			cout << "下标为奇数的数'" << i->data << "'添加在a中\n";
+			cout << "此时a=  "; a.print(); cout << "  "; cout << endl;
+		}
+		i = i->right;
+	}
+	if (i->odd == false)
+	{
+		b.extend(i->data);
+		cout << "下标为偶数的数'" << i->data << "'添加在b中\n";
+		cout << "此时b=  "; b.print(); cout << "  "; cout << endl;
+	}
+	else
+	{
+		a.extend(i->data);
+		cout << "下标为奇数的数'" << i->data << "'添加在a中\n";
+		cout << "此时a=  "; a.print(); cout << "  "; cout << endl;
+	}
+	cout << endl;
+	cout << "最终a=  "; a.print(); cout << "  "; cout << endl;
+	cout << "最终b=  "; b.print(); cout << "  "; cout << endl;
+	return;
+}
+int main()
+{
+	extendedChain<int> a, b, c;
+	void split(extendedChain<int>, extendedChain<int>, extendedChain<int>);
+	int x;
+	cout << "input the list of number:\n输入c的数列\n\n";
+	while (cin >> x && x != 0)
+	{
+		c.extend(x);
+	}
+	cout << "\nbegin to deal...\n开始处理\n\n";
+	split(a, b, c);
+	system("pause");
+	return 0;
+};
