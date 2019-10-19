@@ -1,0 +1,117 @@
+/*
+编写方法chain<T>::split,它与2.2类似。然而，它用输入链表*this的空间建立了链表a和b（使用带有头节点的双向循环链表）
+*/
+#include <iostream>
+using namespace std;
+template<class T> 
+class node
+{
+public:
+	T data;
+	bool odd;//下标为奇数则为true,第一项head下标为零(false)
+	node* left;
+	node* right;
+	node() {}
+	node(T value)
+	{
+		odd = 0;
+		data = value;
+		left = NULL;
+		right = NULL;
+	}
+};
+template <class T> 
+class extendedChain
+{
+public:
+	node<T>* head;
+	node<T>* tail;
+	extendedChain()
+	{
+		head = NULL;
+		tail = NULL;
+	}
+	void extend(T num)//创造新节点以延长
+	{
+		node<T>* temp = new node<T>(num);
+		if (head == NULL)
+		{
+			head = tail = temp;
+			head->right = tail;
+			tail->right = head;
+			tail->left = head;
+			head->left = tail;
+			head->odd = false;
+			return;
+		}
+		else
+		{
+			tail->right = temp;
+			temp->right = head;
+			head->left = temp;
+			temp->left = tail;
+			temp->odd = (tail->odd == false ? true : false);
+			tail = tail->right;
+			return;
+		}
+	}
+	void print()
+	{
+		node<T>* j = head;
+		cout << j->data << " ";
+		while ((j =j->right)!=head)
+		{
+			cout << j->data << " ";
+		}
+		return;
+	}
+	void split(extendedChain<T> *a , extendedChain<T> *b)
+	{
+		if (head == NULL)
+		{
+			cout << "链表为空" << endl << endl;
+			return;
+		}
+		node<T>* p1, * p2, * p3;
+		p3 = p2 = b->head = head;
+		p3 = p3->right;
+		p1 = a->head = p3;
+		p3 = p3->right;
+		while (p3 != head)
+		{
+			p2->right = p3;
+			p3->left = p2;
+			p2 = p3;
+			p3 = p3->right;
+			p1->right = p3;
+			p3->left = p1;
+			p1 = p3;
+			p3 = p3->right;
+		}
+		p2->right = b->head;
+		b->head->left = p2;
+		p1->right = a->head;
+		a->head->left = p1;
+		cout << "最终a=  "; a->print(); cout << "  "; cout << endl;
+		cout << "最终b=  "; b->print(); cout << "  "; cout << endl;
+	}
+};
+int main()
+{
+	extendedChain<int>* a = new extendedChain<int>;
+	extendedChain<int>* b = new extendedChain<int>;
+	extendedChain<int> This;
+	int x;
+	cout << "input the list of number:\n输入this的数列\n\n";
+	while (cin >> x && x != 0)
+	{
+		This.extend(x);
+	}
+	This.split(a,b);
+	This.print();
+	system("pause");
+	return 0;
+};
+/*
+1 2 3 4 0
+*/
