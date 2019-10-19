@@ -1,3 +1,6 @@
+/*原题:
+令a和b的类型为extendedChain（使用带有头节点的双向循环链表）
+编写一个非成员方法split(a,b,c),它生成两个拓展链表a和b.a包含c中索引为奇数的元素,b中包含c中其余的元素.这个方法不能改变c.*/
 #include <iostream>
 using namespace std;
 template<class T>
