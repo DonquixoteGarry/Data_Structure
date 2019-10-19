@@ -1,0 +1,56 @@
+/*
+2．编写递归函数，求n个元素集合的所有子集。不妨令集合元素为小写字母，原集合为{‘a’, ‘b’, …, ‘a’ + n - 1}
+输入：
+input.txt，仅包含整数n（1－26）
+输出：
+若输入合法，输出集合的所有子集；否则输出“WRONG”
+子集输出格式为每行一个子集，空集用空行表示，非空集合每个元素间用一个空格间隔，最后一个元素之后不能有空格
+例如，对n=3，可能的输出为：
+―――――――――――
+a
+a b
+a b c
+a c
+b
+b c
+c
+――――――――――――
+*/
+
+
+
+#include<iostream>
+#include<fstream>
+using namespace std;
+bool exist[26] = { false };//用于标记各个元素,存在或不存在于子集之中,false为不存在,true为存在
+char set[27] = "abcdefghijklmnopqrstuvwxyz";//调用set字符数组便于直接对应数字与字母,最后一位为'\0'
+void subset(char*, int, int);//subset函数的全局声明,subset意为子集
+void subset(char* set, int p, int len)
+{
+	if (p >= len)
+	{
+		for (int i = 0; i < len; i++) { if (exist[i] != false) cout << set[i] << " "; }
+		//在一个子集生成完毕后,通过for循环打印该子集
+		cout << endl;
+		return;
+	}
+	exist[p] = true;subset(set, p + 1, len);
+	exist[p] = false;subset(set, p + 1, len);//讨论下标p的元素"在与不在"子集之中两种情况,形成分叉
+	return;
+}
+int main()
+{
+	fstream result("D:\\input.txt", ios::in);
+	int len;
+	result >> len;//流从文件"input.txt"中读取全集的元素个数len
+	if (len < 0 || len>26)
+	{
+		cout << "WRONG"<<endl;
+		system("pause");
+		return 0;
+	}
+	subset(set, 0, len);//从第一个元素a是否存在于子集中,开始判断,再通过subset函数的递归,遍历所有情况
+	result.close();
+	system("pause");
+	return 0;
+}
