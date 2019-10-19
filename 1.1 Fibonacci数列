@@ -1,0 +1,63 @@
+/*
+编写递归函数计算Fibonacci数列，能避免重复计算
+输入：
+input.txt，仅包含一个整数n（0－90）
+输出：
+程序应能检查输入合法性，若有错误，输出错误提示“WRONG”；否则输出F(n)。两种情况都输出一个回车（形成一个空行）。所有实例均应在30秒内输出结果
+
+ps.可用一数组保存Fibonacci数列，用一个特殊值表示还未计算出Fibonacci数
+递归调用前先检查数组，若已计算，直接取用，不进行递归调用；若未计算，调用递归函数，计算完成后保存入数组
+实际上，这种方法得到了F(1)－F(n)，而不仅是F(n)
+另外，注意数据类型取值范围问题。VC 6.0中，长整型为LONGLONG，而其输出用%I64d
+*/
+
+
+
+#include<iostream>
+#include<fstream>
+using namespace std;
+static long long fib[91];//记录已算出的斐波那契数列数值
+static int got[91];//标记该数值是否算出
+static long long x[91];//作为缓冲区域存储数据
+long long f(int a)
+{
+	if (got[a] == true)
+	{
+		return fib[a];
+	}
+	else
+	{
+		x[a]= f(a - 1) + f(a - 2);
+		got[a] = true;
+		fib[a] = x[a];
+		return fib[a];
+	}
+}
+void initial()
+{
+	fib[1] = 1; fib[2] = 1;
+	got[1] = got[2] =1;
+}
+int main()
+{
+	int input;
+	long long f(int);
+	void initial();initial();
+	fstream number("D:\\input.txt",ios::in);
+	number >> input;
+	if ((input>=1&&input<=90) == false)
+	{
+		cout << "WRONG!" << endl;
+		number.close();
+		system("pause");
+		return 0;
+	}
+	else
+	{
+		printf("%I64d",f(input));//格式化输出
+		cout << endl;
+		system("pause");
+		number.close();
+		return 0;
+	}
+}
