@@ -1,0 +1,90 @@
+/*
+josephus问题
+n个人围坐成一圈，按顺序编号为1－n，确定一个整数m，从1号开始数数，每数到第m个人出列，剩下的人从下一个人重新开始数，直至只剩下一个人为止
+编写程序，对任意输入的n和m，求出最后剩下的人的编号。要求利用线性表保存这n个人，分别用链表描述方法实现
+输入：
+input.txt，两个整数n（3－100），m（1－m）
+输出：
+若输入合法，按出列顺序输出人的编号，否则输出“WRONG”
+编号之间用一个空格间隔，最后一个编号后不能有空格
+如(n=8,m=5时)上述例子的输出应为：
+5 2 8 7 1 4 6 3
+*/
+
+
+#include<iostream>
+#include<fstream>
+using namespace std;
+class people
+{
+public:
+	int value;
+	bool exist;
+	people* nextone;
+	people(int x = 0)
+	{
+		value = x;
+		exist = true;
+	}
+	void kick()
+	{
+		exist = false;
+	};
+};
+class queue
+{
+public:
+	int length;
+	people* first;//头指针
+	people* curr;//流动指针
+	queue(int num = 2)
+	{
+		if (num <= 0)
+		{
+			cout << "无效人数" << endl;
+			return;
+		}
+		length = num;
+		first =new people(1);
+		curr = first;
+		for (int i = 2; i <= length; i++)
+		{
+			people* newpeople = new people(i);
+			curr->nextone = newpeople;
+			curr = curr->nextone;
+		}
+		curr->nextone = first;//连接首尾节点
+	}
+	void start(int width)
+	{
+		if (width <= 0)
+		{
+			cout << "无效步长" << endl;
+			return;
+		}
+		curr = first;
+		int out = 0,step=0;
+		for (int j = 0; out < length; curr = curr->nextone)
+		{
+			if (curr->exist == true)step++;
+			if (step == width)
+			{
+				curr->kick();
+				step = 0; out++;
+				cout << "第" << out << "位出局者为" << curr->value << "号" << endl;
+			}
+		}
+	}
+};
+int main()
+{
+	int person, width;
+	ifstream s("D://input.txt");
+	s >> person >> width;
+	s.close();
+	cout << "person=  " << person << "  width=" << width << endl;
+	queue Queue(person);
+	Queue.start(width);
+	system("pause");
+	return 0;
+}
