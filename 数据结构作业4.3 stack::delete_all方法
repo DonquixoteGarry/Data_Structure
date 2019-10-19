@@ -1,0 +1,105 @@
+/*
+利用教材中的Stack类，为其设计外部函数（非成员函数）实现下面delete_all功能，必要时可以使用临时的Stack对象
+编写主函数测试delete_all函数，栈元素设定为字符类型即可
+template <class T>
+void delete_all(Stack<T> &s, const T &x)------删除栈s中所有等于x的数据项，保持其他数据项顺序不变。
+输入：
+input.txt，其第一个字符为x，其后按栈底到栈顶的顺序依次给出栈中字符，字符间用空格、回车或制表符间隔
+如：
+a
+b a t a a e c
+表示栈底栈顶内容为b a t a a e c
+要删除内容为a
+输出：
+删除后栈中字符内容，从栈顶到栈底的顺序即可，相邻元素间用空格间隔，最后一个元素之后不能有空格。最后输出一个回车。如上例，应为
+―――――――――
+c e t b
+―――――――――――――
+注意：应正确处理输入中空栈等情况。
+*/
+
+
+
+
+#include<iostream>
+#include<string>
+#include<fstream>
+using namespace std;
+template<class T>
+class stack
+{
+public:
+	T* elem;
+	int top = 0;//elem[top]为空
+	stack(int num = 10)
+	{
+		elem = new T[num];
+	}
+	void push(T a)
+	{
+		elem[top] = a;
+		top++;
+	}
+	void kick(int x)
+	{
+		cout << elem[x] << "---already kick " << endl;
+		for (int i = x; i < top - 1;i++)
+		{
+			elem[i] = elem[i + 1];
+		}
+		top--;
+	}
+	void delete_all(T the)
+	{
+		for (int j = 0; j < top; j++)
+		{
+			if (elem[j] == the)
+			{
+				kick(j);
+				j--;
+			}
+			else cout<<elem[j] << "---don't kick" << endl;
+		}
+	}
+	void print()
+	{
+		cout << "输出处理后全栈:\n";
+		for (int k = 0; k < top; k++)
+		{
+			cout<<elem[k]<<" ";
+		}
+	}
+};
+int main()
+{
+	stack<char> n(100);
+	char st[100], A[2];
+	ifstream s("D://input.txt");
+	s.getline(A, 2, '\n');
+	s.getline(st,100,EOF);
+	if (strlen(st) == 0)
+	{
+		cout << "原栈不能为空!!" << endl<<endl;
+		system("pause");
+		return 0;
+	}
+	cout << "应删字符: "<<A[0] << endl<<endl;
+	cout << "目标栈: "<<st;
+	s.close();
+	for (int m = 0;st[m]!='\0'; m++)
+	{
+		if (st[m] != ' ')
+		{
+			n.push(st[m]);
+		}
+	}
+	cout<< endl;
+	cout <<endl<< "开始处理:\n";
+	n.delete_all(A[0]);
+	cout << endl;
+	n.print();
+	cout << endl;
+	cout << endl;
+	system("pause");
+	return 0;
+}
