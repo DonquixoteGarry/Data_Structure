@@ -1,0 +1,119 @@
+/*
+扩充类lowerTriangularMatrix，增加矩阵转置方法
+该方法返回值是上三角矩阵,为下三角矩阵的转置矩阵,是类upperTriangularMatrix的一个实例
+并确定其时间复杂度
+*/
+
+
+#include<iostream>
+#include<iomanip>
+using namespace std;
+template <class T>
+class lowerTriangularMatrix//下三角矩阵
+{
+public:
+	T* value;
+	int s;
+	lowerTriangularMatrix(int size)
+	{
+		s = size;
+		value=new T[(s + 1) * s / 2];//行主次序
+	}
+	void set(int x, int y,T val)//第x行,第y列值为value(x,y>=1)
+	{
+		value[(x * x - x) / 2 + y-1 ] = val;
+	}
+	T get(int x, int y)
+	{
+		if(x>=y)return value[(x * x - x) / 2 + y-1];
+		else return 0;
+	}
+	void print()
+	{
+		int x, y;
+		for (x = 1; x <=s; x++)
+		{
+			for (y = 1; y <=s; y++)
+			{
+				cout << setw(2)<<get(x, y)<<"  ";
+			}
+			cout << endl<<endl;
+		}
+	}
+};
+template <class T>
+class upperTriangularMatrix
+{	
+public:
+	T* value;
+	int s;
+	upperTriangularMatrix(int size)
+	{
+		s = size;
+		value = new T[(s + 1) * s / 2];//行主次序
+	}
+	void set(int x, int y, T val)
+	{
+		value[(2 * s - x + 2) * (x - 1) / 2 + y - x] = val;
+	}
+	T get(int x, int y)
+	{
+		if (x<=y)return value[(2 * s - x + 2) * (x - 1) / 2 + y - x];
+		else return 0;
+	}
+	void print()
+	{
+		int x, y;
+		for (x = 1; x <= s; x++)
+		{
+			for (y = 1; y<=s; y++)
+			{
+				cout << setw(2)<<get(x, y) << "  ";
+			}
+			cout << endl<<endl;
+		}
+	}
+};
+template<class T>
+void tran(lowerTriangularMatrix<T> a)
+{
+	upperTriangularMatrix<T> b(a.s);
+	int x, y;
+	for (x = 1; x <= a.s; x++)
+	{
+		for (y = 1; y <= a.s; y++)
+		{
+			b.set(y, x, a.get(x, y));
+		}
+	}
+	b.print();
+	return;
+}
+int main()
+{
+	int x,s,i;
+	cout << "请输入矩阵的行(列)数:\n";
+	cin >> s;
+	int num = (s * s + s)/2;
+	cout << "\n接下来请依'行主次序'的顺序输入  "<<num<<"  个下三角矩阵的元素值\n\nps.第"<<num<<"项后无效\n";
+	lowerTriangularMatrix<int> a(s);
+	int* p = a.value;
+	i = 0;
+	cout << endl;
+	while ((cin >> x)&&(i < num))
+	{
+		p[i] = x;
+		cout << "刚存入矩阵的元素是 "<<x<<" ,是矩阵一维数组的第"<<i+1<<"项"<<"\n\n";
+		i++;
+	}
+	cout << "←转置之前的下三角矩阵:\n";
+	a.print();
+	cout << "→转置之后的上三角矩阵:\n";
+	tran(a);
+	system("pause");
+	return 0;
+}
+/*
+4
+1 2 3 4 5 6 7 8 9 10 11
+*/
