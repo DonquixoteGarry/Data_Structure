@@ -18,7 +18,7 @@ template<class T> class list//存储elem型元素的元素列list
 template<class T> class matrix//矩阵类
 {
 	int col, lin;
-	list<elem<T>> 
+	list<elem<T>> elemlist;
 	matrix(int column, int line)
 	{
 		col = column;
