@@ -1,0 +1,116 @@
+/*
+令a和b的类型为extendedChain
+编写一个非成员方法meld,它生成一个新的拓展的链表c
+它从a的首元素开始,交替地包含a和b的元素.如一个链表的元素取完了,他就把另一个链表的剩余元素附加到新的拓展链表c中
+方法的复杂度应与链表a和b的长度具有线性关系
+
+*/
+
+
+
+#include <iostream>
+using namespace std;
+template <class T> class node
+{
+public:
+	T data;
+	node* next;
+	node(){}
+	node(T value)
+	{
+		data = value;
+		next = NULL;
+	}
+};
+template <class T> class extendedChain
+{public:
+	node<T>* head;
+	node<T>* tail;
+	extendedChain()
+	{
+		tail=head = NULL;
+	}
+	void extend(T num)//向右延长链表
+	{
+		node<T>* temp = new node<T>(num);
+		if (head == NULL)
+		{
+			head = tail = temp;
+			return;
+		}
+		else
+		{
+			tail->next = temp;
+			tail = temp;
+			return;
+		}
+	};
+	void print()
+	{
+		if (head == NULL)
+		{
+			cout << "  该链表为空";
+			return;
+		}
+		node<T>* curr = head;
+		while (curr ->next!= NULL)
+		{
+			cout << curr->data << " --> ";
+			curr = curr->next;
+		}
+		cout << curr->data;
+	}
+};
+extendedChain<int> meld(extendedChain<int> a, extendedChain<int> b)
+{
+	if (a.head == NULL)
+	{
+		return b;
+	}
+	if (b.head == NULL)
+	{
+		return a;
+	}
+	extendedChain<int> c;
+	node<int>* curr1 = a.head;
+	node<int>* curr2 = b.head;
+	c.extend(curr1->data);
+	c.extend(curr2->data);
+	while (curr1 != a.tail || curr2 != b.tail)
+	{
+
+		if (curr1 != a.tail)
+		{
+			curr1 = curr1->next;
+			c.extend(curr1->data);
+
+		}
+		if (curr2 != b.tail)
+		{
+			curr2 = curr2->next;
+			c.extend(curr2->data);
+
+		}
+	}
+	return c;
+};
+int main()
+{
+	extendedChain<int> a, b, c;
+	extendedChain<int> meld(extendedChain<int> a, extendedChain<int> b);
+	int x;
+	while (cin >> x&&x!=0)
+	{
+		a.extend(x);
+	}
+	while (cin >> x && x != 0)
+	{
+		b.extend(x);
+	}
+	c = meld(a, b);
+	std::cout << "a=";a.print();std::cout << ""; std::cout << endl;
+	std::cout << "b=";b.print(); std::cout << ""; std::cout << endl;
+	std::cout << "c=";c.print(); std::cout << ""; std::cout << endl;
+	std::system("pause");
+	return 0;
+}
