@@ -1,0 +1,197 @@
+/*
+编写一个方法，把两个储存在一位数组的稀缺矩阵相乘
+ps.假定两个矩阵和结果矩阵都是按行主次序存储
+*/
+
+
+
+
+
+#include<iostream>
+#include<iomanip>
+using namespace std;
+template<class T> 
+class elem//矩阵元素elem
+{
+public:
+	int column, line;
+	T value;
+	elem() {}
+	elem(int x, int y, T elem_value)
+	{
+		column = x;
+		line = y;
+		value = elem_value;
+	}
+};
+template<class T>
+void copy(elem<T> a, elem<T> b)//a为空,将b拷贝进a
+{
+	a.value = b.value;
+	a.column = b.column;
+	a.line = b.line;
+}
+template<class T> 
+class matrix//矩阵类matrix
+{
+public:
+	int col, lin,maxsize,num;//num即为非零元素个数
+	elem<T>* p;
+	matrix(int column, int line)
+	{
+		col = column;
+		lin = line;
+		maxsize = column * line;
+		p = new elem<T>[maxsize];
+		num = 0;
+	}
+	bool isempty()
+	{
+		if (num==0)return true;
+		else return false;
+	}
+	void set(int column,int line,T val)
+	{
+		if (val == 0)
+		{
+			return;
+		}
+		p[num].column = column;
+		p[num].line = line;
+		p[num].value = val;
+		num++;
+		return;
+	}
+	T get(int x, int y)
+	{
+		for (int w=0; w<num;w++)
+		{
+			if ((p[w].column == x) && (p[w].line == y))
+			{
+				return p[w].value;
+			}
+		}
+		return 0;
+	}
+	void print()
+	{
+		if (isempty() == true)
+		{
+			cout << endl<<"该矩阵为空" << endl<<endl;
+			return;
+		}
+		else
+		{
+			for (int a = 1; a <= col; a++)
+			{
+				for (int b = 1; b <= lin;b++)
+				{
+					cout << setw(4) << get(a, b);
+				}
+				cout << endl << endl;
+			}
+		}
+	}
+};
+template<class T>
+matrix<T> multiply(matrix<T> m1, matrix<T> m2)//矩阵相乘方法
+{
+	matrix<T> m3(m1.col, m2.lin);
+	if (m1.lin != m2.col)
+	{
+		cout << endl<< "矩阵相乘失败" << endl;
+		return m3;
+	}
+	T sum;
+	for (int i = 1; i <= m3.col; i++)
+	{
+		for (int j = 1; j <= m3.lin; j++)
+		{
+			sum = 0;
+			for (int z = 1; z <= m1.lin; z++)
+			{
+				sum = sum + m1.get(i,z) * m2.get(z, j);
+			}
+			m3.set(i, j, sum);
+		}
+	}
+	return m3;
+}
+int main()
+{
+	int a_col, a_lin,b_col,b_lin,ele,square;
+	cout << "请输入矩阵 a 的行数与列数" << endl << endl;
+	cin >> a_col >> a_lin;
+	if (a_col == 0 || a_lin == 0)
+	{
+		cout << "\n注意 : 行数,列数中不能有值为 0 \n\n";
+		return 0;
+	}
+	matrix<int> a(a_col, a_lin);
+	square = a_col* a_lin;
+	int i = 1;
+	cout <<endl<< "矩阵 a 有 " << a_col << " 行,有 " << a_lin << " 列"<<endl<<endl;
+	while ((cin >> ele) && (i <= square))
+	{
+		int ACol, ALin;
+		ACol = (i % a_lin == 0) ? (i / a_lin) : (i - i % a_lin) / a_lin + 1;
+		ALin = (i % a_lin == 0) ? (a_lin) : (i % a_lin);
+		a.set(ACol,ALin,ele);
+		cout << "在第 " << ACol << " 行第 " << ALin << " 列加入 " << ele;
+		cout << " ,为第 " << i << " 项\n\n";
+		i++;
+	}
+	cout << "矩阵a为:" << endl;
+	a.print();
+	cout << endl;
+	cout << "请输入矩阵 b 的行数与列数" << endl<<endl;
+	cin >> b_col >> b_lin;
+	if (b_col == 0 || b_lin == 0)
+	{
+		cout << "\n注意 : 行数,列数中不能有值为 0 \n\n";
+		return 0;
+	}
+	matrix<int> b(b_col, b_lin);
+	square = b_col * b_lin;
+	i = 1;
+	cout << endl << "矩阵 b 有 " << b_col << " 行,有 " << b_lin << " 列" << endl << endl;
+	while ((cin >> ele) && (i <=square))
+	{
+		int BCol, BLin;
+		BCol = (i % b_lin == 0) ? (i / b_lin) : (i - i % b_lin) / b_lin + 1;
+		BLin = (i % b_lin == 0) ? (b_lin) : (i % b_lin);
+		b.set(BCol, BLin, ele);
+		cout << "在第 " << BCol << " 行第 " << BLin << " 列加入 " << ele ;
+		cout << " ,为第 " << i << " 项\n\n";
+		i++;
+	}
+	cout << "矩阵 b 为:" << endl;
+	b.print();
+	cout << endl;
+	system("pause");
+	cout << "矩阵 c 为:" << endl;
+	multiply(a, b).print();
+	system("pause");
+	return 0;
+}
+/*
+输入样例:
+4 3
+
+5 2 4
+3 8 2
+6 0 4
+0 1 6 0
+
+3 2
+
+2 4
+1 3
+3 2 0
+
+结果:
+24 34
+20 40
+24 32
+19 15
+*/
