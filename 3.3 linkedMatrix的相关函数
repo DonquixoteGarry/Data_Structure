@@ -1,0 +1,319 @@
+/*
+给类linkedMatrix增加下列操作：
+1）已知一个元素的行数列数与数值，存储这个元素
+2）已知一个元素的行和列，从矩阵中取出这个元素
+3）两个稀疏矩阵相加
+4）两个稀疏矩阵相减
+5）两个稀疏矩阵相乘
+
+*/
+
+
+#include<iostream>
+#include<iomanip>
+using namespace std;
+template<class T>
+class linked_elem//元素类linked_elem
+{
+public:
+	int elem_col;
+	int elem_lin;
+	T value;
+	linked_elem* next;
+	linked_elem(){}
+	linked_elem(int column,int line,int _value)
+	{
+		elem_col = column;
+		elem_lin = line;
+		next = NULL;
+		value = _value;
+	}
+};
+template<class T>
+class linked_Matrix//矩阵类linked_Matrix
+{
+public:
+	int Matrix_col;
+	int Matrix_lin;
+	linked_elem<T>* head;
+	linked_elem<T>* tail;
+	linked_Matrix(int column, int line)
+	{
+		Matrix_col = column;
+		Matrix_lin = line;
+		tail = head = NULL;
+	}
+	void set(int column, int line, T _value)//增加项
+	{
+		if (_value == 0)return;
+		if (head == NULL)
+		{
+			linked_elem<T>* temp = new linked_elem<T>(column, line, _value);
+			tail = temp;
+			head = temp;
+			//cout << "->set信号:\n在第";
+			//cout<< temp->elem_col;
+			//cout << "行第";
+			//cout<< temp->elem_lin << "列加入";
+			//cout<< temp->value<<endl<<endl;
+		}
+		else
+		{
+			linked_elem<T>* temp = new linked_elem<T>(column, line, _value);
+			tail->next=temp;
+			tail = temp;
+			//cout << "->set信号:\n在第";
+			//cout<< temp->elem_col;
+			//cout << "行第";
+			//cout<< temp->elem_lin << "列加入";
+			//cout<< temp->value << endl << endl;
+		}
+	}
+	void change(int column, int line, T _value)//修改项值
+	{
+		if (get(column, line) == 0)
+		{
+			set(column, line, _value);
+			return;
+		}
+		linked_elem<T>* curr5 = head;
+		while (curr5 != tail)
+		{
+			if ((curr5->elem_col == column) && (curr5->elem_lin == line))
+			{
+				curr5->value = _value;
+				return;
+			}
+			curr5 = curr5->next;
+		}
+	}
+	T get(int column, int line)//求取项值
+	{
+		linked_elem<T>* curr1 = head;
+		while(curr1!=tail)
+		{
+			if ((curr1->elem_col== column) && (curr1->elem_lin == line))
+			{
+				return curr1->value;
+			}
+			curr1 = curr1->next;
+		}
+		if ((curr1->elem_col == column) && (curr1->elem_lin == line))
+		{
+			return curr1->value;
+		}
+		return 0;
+	}
+	void print()//矩阵全打印
+	{
+		if (head == NULL)
+		{
+			cout << "该矩阵为零矩阵!\n" << endl;
+			return;
+		}
+		linked_elem<T>* curr2 = head;
+		for (int p = 1; p <= Matrix_col; p++)
+		{
+			for (int q = 1; q <= Matrix_lin; q++)
+			{
+				cout << setw(4) << get(p, q) << " ";
+			}
+			cout << endl;
+		}
+		return;
+	}
+};
+template<class T> linked_Matrix<T> Multiply(linked_Matrix<T> m1, linked_Matrix<T> m2)
+{
+	linked_Matrix<T> m3(m1.Matrix_col, m2.Matrix_lin);
+	if (m1.Matrix_lin != m2.Matrix_col)
+	{
+		cout << endl << "矩阵相乘失败" << endl;
+		return m3;
+	}
+	T sum;
+	for (int i = 1; i <= m3.Matrix_col; i++)
+	{
+		for (int j = 1; j <= m3.Matrix_lin; j++)
+		{
+			sum = 0;
+			for (int z = 1; z <= m1.Matrix_lin; z++)
+			{
+				sum = sum + m1.get(i, z) * m2.get(z, j);
+			}
+			m3.set(i, j, sum);
+		}
+	}
+	return m3;
+}
+template<class T> linked_Matrix<T> Plus(linked_Matrix<T> m1, linked_Matrix<T> m2)
+{
+	linked_Matrix<T> m3(m1.Matrix_col, m1.Matrix_lin);
+	if ((m1.Matrix_lin != m2.Matrix_lin)||(m1.Matrix_col != m2.Matrix_col))
+	{
+		cout << endl << "矩阵相加失败" << endl;
+		return m3;
+	}
+	for (int i = 1; i <= m3.Matrix_col; i++)
+	{
+		for (int j = 1; j <= m3.Matrix_lin; j++)
+		{
+			int ans = m1.get(i, j) + m2.get(i, j);
+			m3.set(i, j, ans);
+		}
+	}
+	return m3;
+}
+template<class T> linked_Matrix<T> Minus(linked_Matrix<T> m1, linked_Matrix<T> m2)
+{
+	linked_Matrix<T> m3(m1.Matrix_col, m1.Matrix_lin);
+	if ((m1.Matrix_lin != m2.Matrix_lin) || (m1.Matrix_col != m2.Matrix_col))
+	{
+		cout << endl << "矩阵相减失败" << endl;
+		return m3;
+	}
+	for (int i = 1; i <= m3.Matrix_col; i++)
+	{
+		for (int j = 1; j <= m3.Matrix_lin; j++)
+		{
+			int ans = m1.get(i, j) - m2.get(i, j);
+			m3.set(i, j, ans);
+		}
+	}
+	return m3;
+}
+int main()
+{
+	int a_col, a_lin, b_col, b_lin, ele, square;
+	char op;
+	cout << "请输入矩阵 a 的行数与列数" << endl << endl;
+	cin >> a_col >> a_lin;
+	if (a_col == 0 || a_lin == 0)
+	{
+		cout << "\n注意 : 行数,列数中不能有值为 0 \n\n";
+		return 0;
+	}
+	linked_Matrix<int> a(a_col, a_lin);
+	square = a_col * a_lin;
+	int i = 1;
+	cout << endl << "矩阵 a 有" << a_col << "行,有" << a_lin << "列" << endl << endl;
+	while ((cin >> ele) && (i <= square))
+	{
+		int ACol, ALin;
+		ACol = (i % a_lin == 0) ? (i / a_lin) : (i - i % a_lin) / a_lin + 1;
+		ALin = (i % a_lin == 0) ? (a_lin) : (i % a_lin);
+		a.set(ACol, ALin, ele);
+		//cout << "->main信号:\n";
+		//cout << "在第" << ACol << "行第" << ALin << "列加入" << ele;
+		//cout << "\n\n";
+		i++;
+	}
+	cout << "矩阵a为:" << endl;
+	a.print();
+	cout << endl;
+	//-----------------------------------------------------------------------------//
+	cout << "请输入矩阵 b 的行数与列数" << endl << endl;
+	cin >> b_col >> b_lin;
+	if (b_col == 0 || b_lin == 0)
+	{
+		cout << "\n注意 : 行数,列数中不能有值为 0 \n\n";
+		return 0;
+	}
+	linked_Matrix<int> b(b_col, b_lin);
+	square = b_col * b_lin;
+	i = 1;
+	cout << endl << "矩阵 b 有" << b_col << "行,有" << b_lin << "列" << endl << endl;
+	while ((cin >> ele) && (i <= square))
+	{
+		int BCol, BLin;
+		BCol = (i % b_lin == 0) ? (i / b_lin) : (i - i % b_lin) / b_lin + 1;
+		BLin = (i % b_lin == 0) ? (b_lin) : (i % b_lin);
+		b.set(BCol, BLin, ele);
+		//cout << "->main信号:\n";
+		//cout << "在第" << BCol << "行第" << BLin << "列加入" << ele;
+		//cout << "\n\n";
+		i++;
+	}
+	cout << "矩阵 b 为:" << endl;
+	b.print();
+	cout << endl;
+	system("pause");
+	//---------------------------------------------------------------------------//
+	cout << "\n输入动作指令\n\n";
+	cout<<"s : 存储元素\np : 矩阵加法\n";
+	cout << "m : 矩阵减法\nM : 矩阵乘法\nP : 取出元素\n\n";
+	cin >> op;
+	switch (op)
+	{
+	case's'://set
+		cout << "\n开始存储元素:\n\n请依次输入矩阵名,行数,列数与值" << endl<<endl;
+		int new_col, new_lin, new_value;
+		char ob;
+		cin >> ob;
+		cin >> new_col >> new_lin >> new_value;
+		cout << endl;
+		if (ob == 'a')
+		{
+			a.change(new_col, new_lin, new_value);
+			cout << "存入元素后矩阵a为\n\n";
+			a.print();
+		}
+		if (ob == 'b')
+		{
+			b.change(new_col, new_lin, new_value);
+			cout << "存入元素后矩阵b为\n\n";
+			b.print();
+		}
+		break;
+	case'p':
+		cout << "\n开始运行矩阵加法" << endl;
+		Plus(a, b).print();
+		break;
+	case'm'://minus
+		cout << "\n开始运行矩阵减法" << endl;
+		Minus(a,b).print();
+		break;
+	case'M'://multiply
+		cout << "\n开始运行矩阵乘法" << endl;
+		Multiply(a, b).print();
+		break;
+	case'P'://pop
+		cout << "\n开始取出元素,\n请依次输入矩阵名,行数,列数" << endl;
+		cin >> ob;
+		cin >> new_col >> new_lin;
+		if (ob == 'a')
+		{
+			cout << "\n从矩阵a中取出的值为 " << a.get(new_col, new_lin) << endl;
+			cout << "\n取出后,矩阵a为\n";
+			a.change(new_col, new_lin, 0);
+			a.print();
+			cout << endl;
+		}
+		if (ob == 'b')
+		{
+			cout << "\n从矩阵a中取出的值为 " << b.get(new_col, new_lin) << endl;
+			cout << "\n取出后,矩阵b为\n";
+			b.change(new_col, new_lin, 0);
+			b.print();
+			cout << endl;
+		}
+		break;
+	default:
+		cout << "\n非法指令 ! \n" << endl;
+	};
+	return 0;
+}
+/*
+
+输入示例:
+2 3
+1 2 3 4 5 6 0
+2 3
+1 2 3 4 5 6 0
+
+3 3
+7 8 9 4 5 1 2 3 7 0
+
+
+
+*/
