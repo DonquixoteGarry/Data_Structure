@@ -131,7 +131,8 @@ public:
 		cout << "---------------------------\n	全表显示"<<endl;
 		cout << "\nhash(x) = ( " << hash_a << " * x ^ 2 + " << hash_b << ") % " << div << "" << endl;;
 		cout << "hash表容量:" << div << "";
-		cout << "\n字典对数:"<<dic<<"\n\n";
+		cout << "\n字典对数:"<<dic<<"\n";
+		cout << "\n删除对数:" << disabled_dic << "\n\n";
 		for (int k = 0; k < div; k++)
 		{
 			cout <<setw(2)<< "第" << k << "桶	";
@@ -167,7 +168,9 @@ public:
 	{
 		if (disabled_dic <= 3 / 2 * (div-dic-disabled_dic))return;
 		//60%空桶为disabled时刷新hash表
-		cout << "删除数对达到上限,触发hash表重排操作\n\n";
+		cout << "\n-------------------------------------------\n";
+		cout << "删除数对达到上限,触发hash表重排操作\n";
+		cout << "-------------------------------------------\n\nEND!\n";
 		int* p = new int[div];
 		bool* q = new bool[div];
 		for (int i = 0; i < div; i++)
@@ -180,10 +183,13 @@ public:
 			}
 			buckets[i].kick();//依次清空桶
 		}
+		dic = 0;
+		disabled_dic = 0;
 		for (int i = 0; i < div; i++)
 		{
 			if (q[i] == false)
 			{
+				cout << "开始重新进行hash表插入操作,该数";
 				insert(p[i]);
 			}
 		}
@@ -290,4 +296,3 @@ int main()
 	}
 	return 0;
 }
-
