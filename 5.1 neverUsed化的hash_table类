@@ -75,7 +75,7 @@ public:
 	int dic;//数对的数量
 	int disabled_dic;//删除的数对的数量
 	int hash_a, hash_b;
-	//newkey=hash_a*key*key+hash_b
+	//newkey=hash_a*key+hash_b
 	hash_table(int _div,int _hash_a,int _hash_b)
 	{
 		//建立div个桶,hash函数系数为a,b
@@ -203,7 +203,7 @@ public:
 		while (1)
 		{
 			step++;
-			if (search_value==buckets[key].bucket_value)
+			if ((search_value==buckets[key].bucket_value) && (buckets[key].Used == false))
 			{
 				cout << "搜索成功,该值存储在第 " << key << " 位\n\nEND!\n" << endl;
 				dic--;
