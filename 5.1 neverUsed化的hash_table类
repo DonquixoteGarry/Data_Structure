@@ -75,7 +75,7 @@ public:
 	int dic;//数对的数量
 	int disabled_dic;//删除的数对的数量
 	int hash_a, hash_b;
-	//newkey=hash_a*key+hash_b
+	//newkey=hash_a*key*key+hash_b
 	hash_table(int _div,int _hash_a,int _hash_b)
 	{
 		//建立div个桶,hash函数系数为a,b
