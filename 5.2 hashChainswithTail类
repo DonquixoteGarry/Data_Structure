@@ -11,6 +11,7 @@ PS.不使用任何链表类的方法实现插入与删除
 */
 
 
+
 #include<iostream>
 #include<iomanip>
 #include<cstring>
@@ -237,6 +238,7 @@ int main()
 		case'2':
 			cout << "\n请输入删除的数值\n\n";
 			cin >> x;
+			hash1.search(x);
 			hash1.del(x);
 			break;
 		case'3':
