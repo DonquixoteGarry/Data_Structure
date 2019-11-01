@@ -1,0 +1,257 @@
+/*
+设计一个类hashChainswithTail
+其中每个散列链表都是一个有尾节点的有序链表
+而且所有链表在物理上都共享一个尾节点
+
+PS.不使用任何链表类的方法实现插入与删除
+*/
+
+/*
+由于能力有限,未能实现不用链表方法
+*/
+
+
+#include<iostream>
+#include<iomanip>
+#include<cstring>
+using namespace std;
+class node
+{
+public:
+	int value;
+	node* next;
+	node(int _value)
+	{
+		value = _value;
+		next = NULL;
+	}
+};
+class bucket
+{
+public:
+	node* first;
+	node* tail;
+	bool used;
+	int len;
+	bucket()
+	{
+		first = NULL;
+		tail = NULL;
+		used = false;
+		len = 0;
+	}
+	void push(int push_value)
+	{
+		if (first == NULL)
+		{
+			node* temp = new node(push_value);
+			first = temp;
+			tail = temp->next;
+			used = true;
+			len++;
+			cout << "已创建节点"<<temp->value << endl;
+			return;
+		}
+		else
+		{
+			node* curr = first;
+			while (1)//自动向右延长
+			{
+				if (curr ->next== tail)
+				{
+					node* temp = new node(push_value);
+					temp->next = tail;
+					curr->next = temp;
+					len++;
+					cout << "已创建节点" << temp->value << endl;
+					return;
+				}
+				curr = curr->next;
+			}
+		}
+	}
+	node* find(int find_value)
+	{
+		int step = 1;
+		if (first == tail)
+		{
+			cout << "\n该值搜索失败!" << endl << endl;
+			return NULL;
+		}
+		node* curr = first;
+		while (curr != tail)
+		{
+			if (curr->value == find_value)
+			{
+				cout << "\n该值位于某桶第" << step << "项\n";
+				return curr;
+			}
+			curr = curr->next;
+			step++;
+		}
+		cout << "\n该值搜索失败!\n" << endl<<endl;
+		return NULL;
+	}
+};
+class hashChainswithTail
+{
+public:
+	bucket* buckets;
+	node* same_tail;//共用尾节点
+	int div;
+	hashChainswithTail(int _div)
+	{
+		div = _div;
+		same_tail = NULL;
+		buckets = new bucket[_div];
+		for (int j = 0; j < _div; j++)
+		{
+			buckets[j].tail = same_tail;
+		}
+	}
+	void insert(int insert_value)
+	{
+		int key = hash(insert_value);
+		buckets[key].push(insert_value);
+		cout << "已在第" << key << "桶中插入值"<<insert_value<<endl;
+	}
+	int hash(int value)
+	{
+		int key = value % div;
+		return key;
+	}
+	void del(int delete_value)
+	{
+		cout << "\n开始进行删除操作\n";
+		int step = 0;
+		int key = hash(delete_value);
+		node* ans = buckets[key].find(delete_value);
+		if (ans == NULL)
+		{
+			cout << "\n该值搜索失败\n";
+			return;
+		}
+		node* curr = buckets[key].first;
+		if(buckets[key].first->next==same_tail)
+		{
+			if (buckets[key].first == ans)
+			{
+					cout << "\n该值搜索成功\n";
+					free(curr);
+					buckets[key].first = NULL;
+					cout << "\n已删除该节点\n";
+					return;
+			}
+		}
+		if (buckets[key].first->value = delete_value)
+		{
+			cout << "\n该值搜索成功\n";
+			node* temp = buckets[key].first->next;
+			free(buckets[key].first);
+			buckets[key].first = temp;
+			cout << "\n已删除该节点\n";
+			return;
+		}
+		while (curr ->next!= same_tail)
+		{
+			if (curr->next == ans)
+			{
+				cout << "\n该值搜索成功\n";
+				node* x = curr->next;
+				curr->next = curr->next->next;
+				free(x);
+				cout << "\n已删除该节点\n";
+				return;
+			}
+			curr = curr->next;
+		}
+		cout << "\n\n该值搜索失败\n\n";
+		return;
+	}
+	void search(int search_value)
+	{
+		cout<< "\n开始进行搜索操作\n\n";
+		int step = 1;
+		int key = hash(search_value);
+		node* p = buckets[key].first;
+		while (p != same_tail)
+		{
+			if (p->value == search_value)
+			{
+				cout << "该值已找到,该值是位于第 " << key << " 桶第 " << step << " 个项"<< endl << endl;
+				return;
+			}
+			step++;
+			p = p->next;
+		}
+		cout << "\n该值搜索失败\n";
+		return;
+	}
+	void print()
+	{
+		cout << "\n---------------\n开始打印全表:\n\n";
+		for (int i = 0; i < div; i++)
+		{
+			cout << "第" << i << "桶: ";
+			if (buckets[i].first == NULL)
+			{
+				cout << "over\n\n";
+			}
+			else
+			{
+				node* curr1 = buckets[i].first;
+				while (curr1 != buckets[i].tail)
+				{
+					cout << curr1->value << " --> ";
+					curr1 = curr1->next;
+				}
+				cout << "over\n\n";
+			}
+		}
+		cout << "\n\n全表打印完毕:\n---------------\n\n";
+	}
+};
+int main()
+{
+	int divide;
+	cout << "请输入hash表的规模(即hash表的桶数和除数)" <<endl<< endl;
+	cin >> divide;
+	int x;
+	char op;
+	hashChainswithTail hash1(divide);
+	while (1)
+	{
+		cout << "\n-------------\n\n请输入动作指令\n1:存储元素\n2:删除元素\n3:打印全表\n4:搜索元素\n5:程序结束\n\n";
+		cin >> op;
+		switch (op)
+		{
+		case'5':
+			cout << "\n程序结束\n\n-------------\n\n";
+			system("pause");
+			return 0;
+		case'1':
+			cout << "\n请输入存储的数值\n\n";
+			cin >> x;
+			hash1.insert(x);
+			break;
+		case'2':
+			cout << "\n请输入删除的数值\n\n";
+			cin >> x;
+			hash1.del(x);
+			break;
+		case'3':
+			hash1.print();
+			break;
+		case'4':
+			cout << "\n请输入搜索的数值\n\n";
+			cin >> x;
+			hash1.search(x);
+			break;
+		default:
+			cout << "\n非法输入!\n\n";
+			break;
+		}
+	}
+	system("pause");
+	return 0;
+}
