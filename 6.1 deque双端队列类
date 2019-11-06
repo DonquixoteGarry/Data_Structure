@@ -1,0 +1,47 @@
+/*
+双端队列（double-ended queue，deque），就是在列表的两端都可以插入和删除数据
+它允许的操作有Create、IsEmpty、IsFull、Left、Right、AddLeft、AddRight、DeleteLeft、DeleteRight
+使用循环数组方式实现双端队列,要求实现上述操作,并实现一个Print输出操作
+能将队列由左至右的次序输出于一行，元素间用空格间隔,队列元素类型设为整型
+输入：
+input.txt，
+给出一个操作序列，可能是Create、Print之外的任何操作，需要的情况下，会给出参数。最后以关键字“End”结束
+例如：
+AddLeft	1
+AddLeft	2
+DeleteRight
+IsFull
+DeleteLeft
+IsEmpty
+AddRight 3
+AddLeft 2
+AddRight 1
+End
+
+输出：
+程序开始执行时，队列设置为空
+按输入顺序执行操作，每个操作执行完后，将结果输出于一行
+对于错误命令，输出“WRONG”
+对IsEmpty和IsFull命令，试情况输出“Yes”或“No”
+对Left和Right命令，若队列空，输出“EMPTY”，否则输出对应队列元素
+对Add命令，若队列满，输出“FULL”，否则调用Print,输出队列所有元素
+对Del命令，若队列空，输出“EMPTY”，否则输出所有元素
+元素间用空格间隔，最后一个元素后不能有空格。最后输出一个回车
+
+例如，对上例，应输出：
+―――――――――
+1
+2 1
+2
+No
+
+Yes
+3
+2 3
+2 3 1
+
+――――――――――――――――
+*/
+
+
+
