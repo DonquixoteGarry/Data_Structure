@@ -1,0 +1,257 @@
+/*
+双端队列（double-ended queue，deque），就是在列表的两端都可以插入和删除数据
+它允许的操作有Create、IsEmpty、IsFull、Left、Right、AddLeft、AddRight、DeleteLeft、DeleteRight
+使用循环数组方式实现双端队列,要求实现上述操作,并实现一个Print输出操作
+能将队列由左至右的次序输出于一行，元素间用空格间隔,队列元素类型设为整型
+输入：
+input.txt，
+给出一个操作序列，可能是Create、Print之外的任何操作，需要的情况下，会给出参数。最后以关键字“End”结束
+例如：
+AddLeft	1
+AddLeft	2
+DeleteRight
+IsFull
+DeleteLeft
+IsEmpty
+AddRight 3
+AddLeft 2
+AddRight 1
+End
+
+输出：
+程序开始执行时，队列设置为空
+按输入顺序执行操作，每个操作执行完后，将结果输出于一行
+对于错误命令，输出“WRONG”
+对IsEmpty和IsFull命令，试情况输出“Yes”或“No”
+对Left和Right命令，若队列空，输出“EMPTY”，否则输出对应队列元素
+对Add命令，若队列满，输出“FULL”，否则调用Print,输出队列所有元素
+对Del命令，若队列空，输出“EMPTY”，否则输出所有元素
+元素间用空格间隔，最后一个元素后不能有空格。最后输出一个回车
+
+例如，对上例，应输出：
+―――――――――
+1
+2 1
+2
+No
+
+Yes
+3
+2 3
+2 3 1
+
+――――――――――――――――
+*/
+
+
+
+#include<iostream>
+#include<fstream>
+#include<cstring>
+#define max_size 10
+using namespace std;
+template<class T>
+class elem
+{
+public:
+	T elem_value;
+	bool open;
+	elem()
+	{
+		elem_value = 0;
+		open = false;
+	}
+	void push(T new_value)
+	{
+		elem_value = new_value;
+		open = true;
+	}
+	void kill()
+	{
+		elem_value = 0;
+		open = false;
+	}
+};
+template<class T>
+class deque
+{
+public:
+	elem<T>* elems;
+	int left, right,size;
+	deque(int maxsize)
+	{
+		elems = new elem<T>[maxsize];
+		left = right = maxsize;
+		size = maxsize;
+		//将初始下标设为无效下标
+	}
+	void create(int pos,int new_value)
+	{
+		elems[pos].push(new_value);
+		return;
+	}
+	bool empty()
+	{
+		int sum = 0;
+		for (int i = 0; i < size; i++)
+		{
+			if (elems[i].open == true)sum++;
+		}
+		return (sum == 0) ? (true) : (false);
+	}
+	bool full()
+	{
+		int sum = 0;
+		for (int i = 0; i < size; i++)
+		{
+			if (elems[i].open == true)sum++;
+		}
+		return (sum == size) ? (true) : (false);
+	}
+	void isempty()
+	{
+		cout << "---is deque empty?---\n";
+		if (empty() == true)cout << "YES\n";
+		else cout << "NO\n";
+		return;
+	}
+	void isfull()
+	{
+		cout << "---is deque full?---\n";
+		if (full() == true)cout << "YES\n";
+		else cout << "NO\n";
+		return;
+	}
+	void addleft(T left_value)
+	{
+		cout << "---add the left node---\n";
+		if (empty()== 1)
+		{
+			left = right = size / 2;
+			create(left, left_value);
+			print();
+			return;
+		}
+		if (full() == 1)
+		{
+			cout << "FULL\n";
+			return;
+		}
+		create(left - 1, left_value);
+		left = (left + size - 1) % size;
+		print();
+		return;
+	}
+	void addright(T right_value)
+	{
+		cout << "---add the right node---\n";
+		if (empty() == 1)
+		{
+			left = right = size / 2;
+			create(right, right_value);
+			print();
+			return;
+		}
+		if (full() == 1)
+		{
+			cout << "FULL\n";
+			return;
+		}
+		create(right + 1, right_value);
+		right = (right + 1) % size;
+		print();
+		return;
+	}
+	void deleteleft()
+	{
+		cout << "---delete the left node---\n";
+		if (empty() == 1)
+		{
+			cout << "EMPTY\n";
+			return;
+		}
+		elems[left].kill();
+		left = (left + 1) % size;
+		print();
+		return;
+	}
+	void deleteright()
+	{
+		cout << "---delete the right node---\n";
+		if (empty() == 1)
+		{
+			cout << "EMPTY\n";
+			return;
+		}
+		elems[right].kill();
+		right = (right +size- 1) % size;
+		print();
+		return;
+	}
+	void print()
+	{
+		//cout << "\nprint all\n";
+		if (empty() == true)
+		{
+			cout << "\n";
+			return;
+		}
+		for (int j = left; j != right; j = (j + 1) % size)
+		{
+			if(elems[j].open==true)cout << elems[j].elem_value << " ";
+		}
+		cout<< elems[right].elem_value <<endl;
+		//cout << "\n打印结束\n\n";
+	}
+};
+int main()
+{
+	cout << "------START------\n";
+	deque<int> deque1(max_size);
+	ifstream s("D://input.txt");
+	string op;
+	int value;
+	while (s>>op)
+	{
+		if(op=="DeleteRight")
+		{
+			deque1.deleteright();
+		}
+		else if (op == "DeleteLeft")
+		{			
+			deque1.deleteleft();
+		}
+		else if (op == "IsFull")
+		{
+			deque1.isfull();
+		}
+		else if (op == "IsEmpty")
+		{
+			deque1.isempty();
+		}
+		else if (op == "AddLeft")
+		{
+			s >> value;
+			deque1.addleft(value);
+		}
+		else if (op == "AddRight")
+		{
+			s >> value;
+			deque1.addright(value);
+		}
+		else if (op == "End")
+		{
+			cout << "------END------\n";
+			system("pause");
+			return 0;
+		}
+		else
+		{
+			cout << "-=-=-=--=-=-=--=-=-=-\nvaild input,run next order!\n-=-=-=--=-=-=--=-=-=-\n";
+		}
+		//system("pause");
+	}
+}
+
+
+
