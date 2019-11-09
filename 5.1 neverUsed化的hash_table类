@@ -6,8 +6,9 @@
 重新组织之后，每个空桶的neverUsed域的值为true
 */
 
-
-
+/*
+我将哈希函数默认为hash(x)=x+1
+*/
 
 
 #include<iostream>
@@ -18,12 +19,12 @@ class bucket//桶(bucket)
 {
 public:
 	int bucket_value;
-	bool Used;
+	bool noUsed;
 	bool neverUsed;
 	bucket()
 	{
 		bucket_value = 0;
-		Used = true;
+		noUsed = true;
 		neverUsed = true;
 	}
 	void value_print()
@@ -34,7 +35,7 @@ public:
 		}
 		else
 		{
-			if (Used == true)
+			if (noUsed == true)
 			{
 				cout << " disabled\n" << endl;
 			}
@@ -47,23 +48,23 @@ public:
 	}
 	void push(int _push_value)
 	{
-		if (Used==true)
+		if (noUsed==true)
 		{
 			bucket_value = _push_value;
 			//cout << "此轮插值成功!\n" << endl;
-			Used = false;
+			noUsed = false;
 			neverUsed = false;
 			return;
 		}
 	}
 	void clear()//disabled化目标桶
 	{
-		Used = true;
+		noUsed = true;
 	}
 	void kick()//完全初始化桶,重置neverUsed
 	{
 		bucket_value = 0;
-		Used = true;
+		noUsed = true;
 		neverUsed = true;
 	}
 };
@@ -74,17 +75,14 @@ public:
 	int div;//=除数=桶数
 	int dic;//数对的数量
 	int disabled_dic;//删除的数对的数量
-	int hash_a, hash_b;
 	//newkey=hash_a*key+hash_b
-	hash_table(int _div,int _hash_a,int _hash_b)
+	hash_table(int _div)
 	{
 		//建立div个桶,hash函数系数为a,b
 		buckets = new bucket[_div];
 		div = _div;
 		dic = 0;
 		disabled_dic = 0;
-		hash_a = _hash_a;
-		hash_b = _hash_b;
 	}
 	void insert(int insert_value)
 	{
@@ -105,7 +103,7 @@ public:
 			if (key == first_hash(insert_value)||(step>=div))
 			{
 				cout << "\n-------------------------------------------\n";
-				cout<<"因hash函数不良或hash表容量不足,此次插值失败\n";
+				cout<<"因hash表容量不足,此次插值失败\n";
 				cout<<"-------------------------------------------\n\nEND!\n";
 				return;
 			}
@@ -123,13 +121,12 @@ public:
 	{
 		//hash函数,用于更新key(再hash法)
 		//使用除数取余法
-		int newkey = (hash_a * key*key + hash_b)%div;
+		int newkey = (key+1)%div;
 		return newkey;
 	}
 	void print()
 	{//hash表打印
 		cout << "---------------------------\n	全表显示"<<endl;
-		cout << "\nhash(x) = ( " << hash_a << " * x ^ 2 + " << hash_b << ") % " << div << "" << endl;;
 		cout << "hash表容量:" << div << "";
 		cout << "\n字典对数:"<<dic<<"\n";
 		cout << "\n删除对数:" << disabled_dic << "\n\n";
@@ -148,7 +145,7 @@ public:
 		while (1)
 		{
 			step++;
-			if ((delete_value == buckets[key].bucket_value)&&(buckets[key].Used==false))
+			if ((delete_value == buckets[key].bucket_value)&&(buckets[key].noUsed==false))
 			{
 				cout<<"已删除目标值"<< buckets[key].bucket_value <<endl;
 				buckets[key].clear();
@@ -176,7 +173,7 @@ public:
 		for (int i = 0; i < div; i++)
 		{
 			q[i] = true;
-			if (buckets[i].Used == false)
+			if (buckets[i].noUsed == false)
 			{
 				p[i] = buckets[i].bucket_value;
 				q[i] = false;//依次转移桶数据
@@ -203,7 +200,7 @@ public:
 		while (1)
 		{
 			step++;
-			if ((search_value==buckets[key].bucket_value) && (buckets[key].Used == false))
+			if ((search_value==buckets[key].bucket_value) && (buckets[key].noUsed == false))
 			{
 				cout << "搜索成功,该值存储在第 " << key << " 位\n\nEND!\n" << endl;
 				dic--;
@@ -234,11 +231,8 @@ int main()
 		return 0;
 	}
 	cout << endl;
-	int a, b;//hash系数
-	cout << "\n输入hash函数的系数a和b\n\n提示:hash (x) = ( a * x ^ 2 + b ) % divide \n" << endl;
-	cin >> a >> b;
 	int input;
-	hash_table hash1(divide, a, b);
+	hash_table hash1(divide);
 	while (1)
 	{
 		cout << "\n请输入动作指令\n\n0:结束程序\n1:搜索操作\n2:存储操作\n3:删除操作\n4:打印全表\n\n" << endl;
