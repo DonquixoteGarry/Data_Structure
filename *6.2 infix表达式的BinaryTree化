@@ -26,3 +26,280 @@ ps:
 另外，如何将input.txt转换为二叉树结构，除了链接实现的二叉树结构外，可能还需要一些辅助结构。
 
 */
+
+
+
+
+
+#include<iostream>
+#include<cstring>
+#include<iomanip>
+using namespace std;
+int level(char op)
+{//返回运算符的优先级
+	//乘除为2,加减为1
+	switch (op)
+	{
+	case'+':
+		return 1; break;
+	case'-':
+		return 1; break;
+	case'*':
+		return 2; break;
+	case'/':
+		return 2; break;
+	default:
+		return 0;
+	}
+}
+bool isop(char op)
+{//检查是否运算符
+	if (op == '+' || op == '-' || op == '*' || op == '/')return true;
+	else return false;
+}
+bool isvalue(char value)
+{
+	//检查是否数值
+	if ((((value >= 'a') && (value <= 'z'))
+		|| ((value >= 'A') && (value <= 'Z'))
+		|| ((value >= '0') && (value <= '9'))))return true;
+	else return false;
+}
+template<class T>
+class stack
+{
+public:
+	T elem[100];
+	int top ;//elem[top-1]为栈顶
+	stack<T>()
+	{
+		top = 0;
+	}
+	void push(T push_thing)
+	{
+		if (top >=100)
+		{
+			return;
+		}
+		else
+		{
+			elem[top] = push_thing;
+			top++;
+			return;
+		}
+	}
+	void nodepop()
+	{
+		if (top <= 0)
+		{
+			return;
+		}
+		elem[top - 1] = NULL;
+		top--;
+		return;
+	}
+	void pop()
+	{
+		if (top <= 0)
+		{
+			return;
+		}
+		top--;
+		return;
+	}
+	T get_top()
+	{
+		return elem[top - 1];
+	}
+};
+stack<char> trans(stack<char> infix,char _name)
+{//带括号的中缀表达式infix转化为无括号后缀表达式postfix
+	stack<char> temp;
+	stack<char> postfix;
+	for (int i = 0; i < infix.top; i++)
+	{
+		if (infix.elem[i] == '(')
+		{
+			temp.push(infix.elem[i]);
+		}
+		else if (isvalue(infix.elem[i])==true)
+		//为字母数字
+		{
+			postfix.push(infix.elem[i]);
+		}
+		else if (infix.elem[i] == ')')
+		{
+			while (temp.get_top() != '(')
+			{
+				postfix.push(temp.get_top());
+				temp.pop();
+			}
+			temp.pop();
+		}
+		else if ( isop(infix.elem[i])==true )
+		{
+			if (temp.top == 0)
+			{
+				temp.push(infix.elem[i]);
+			}
+			else
+			{
+				while ((level(temp.get_top()) >= level(infix.elem[i]))&&(temp.top!=0))
+				{
+					postfix.push(temp.get_top());
+					temp.pop();
+				}
+				temp.push(infix.elem[i]);
+			}
+		}
+	}
+	while (temp.top != 0)
+	{
+		postfix.push(temp.get_top());
+		temp.pop();
+	}
+	return postfix;
+};
+class binaryTreeNode
+{
+public:
+	char value;
+	int depth;//depth深度,根节点深度为0
+	binaryTreeNode* leftchild;
+	binaryTreeNode* rightchild;
+	binaryTreeNode* thefather;
+	bool isroot;
+	binaryTreeNode() 
+	{
+		leftchild = NULL;
+		rightchild = NULL;
+		isroot = false;
+		thefather = NULL;
+		depth = 0;
+		value = 0;
+	}
+	void nodepush(char new_value)
+	{
+		
+		value = new_value;
+	}
+	void rootize()
+		//树根化
+	{
+		isroot = true;
+	}
+	void visit()
+		//访问
+	{
+		cout << setw(depth * 4) << value<<endl;
+	}
+	void print_all_subtree()
+	{
+		//遍历二叉树
+		if(rightchild!=NULL)rightchild->print_all_subtree();
+		visit();
+		if (leftchild != NULL)leftchild->print_all_subtree();
+		return;
+	}
+};
+void set_depth(binaryTreeNode* _root)
+{//depth值遍历置值
+	if (_root->isroot == true)
+	{
+		_root->depth = 0;
+		cout << "\n根节点  " << _root->value << "  depth值设置为  " << _root->depth << "\n";
+		set_depth(_root->rightchild);
+		set_depth(_root->leftchild);
+	}
+	else if ((_root->leftchild != NULL) && (_root->rightchild != NULL))
+	{
+		_root->depth = _root->thefather->depth + 1;
+		cout << "\n满节点  " << _root->value << "  depth值设置为  " << _root->depth << "\n";
+		set_depth(_root->rightchild);
+		set_depth(_root->leftchild);
+	}
+	else if ((_root->leftchild == NULL) && (_root->rightchild == NULL))
+	{
+		_root->depth = _root->thefather->depth + 1;
+		cout << "\n叶节点  "<<_root->value<<"  depth值设置为  "<< _root->depth<<"\n";
+	}
+	return;
+}
+void born(binaryTreeNode* _father, binaryTreeNode* _leftchild, binaryTreeNode* _rightchild)
+{//定义父子关系
+	_father->leftchild = _leftchild;
+	_father->rightchild = _rightchild;
+	_rightchild->thefather = _father;
+	_leftchild->thefather = _father;
+	return;
+}
+class binaryTree
+{
+public:
+	binaryTreeNode* root;
+	binaryTree() {root = NULL;}
+	void TreePrint()
+	{
+		cout << "\n----------开始打印二叉树----------\n";
+		root->print_all_subtree();
+		cout << "\n----------二叉树打印完毕----------\n";
+	}
+};
+binaryTree buildtree(stack<char> postfix)
+{ 
+	binaryTree newtree; 
+	stack<binaryTreeNode*> temp;
+	int _len = strlen(postfix.elem);
+	for (int a = 0; a < _len-1;a++)
+	{
+		if (isop(postfix.elem[a]) == true)
+		{
+			cout << "新运算符节点  "<< postfix.elem[a] <<"  已建立\n";
+			binaryTreeNode* child1 = new binaryTreeNode;
+			//child1->nodepush(temp.get_top()->value);
+			child1=temp.get_top();
+			temp.nodepop();
+			binaryTreeNode* child2 = new binaryTreeNode;
+			//child2->nodepush(temp.get_top()->value);
+			child2 = temp.get_top();
+			temp.nodepop();
+			binaryTreeNode* father = new binaryTreeNode;
+			father->nodepush(postfix.elem[a]);
+			born(father, child2, child1);
+			temp.push(father);
+			cout << "\n\n新节点树结构建立完成\n根节点值为  " << father->value << endl <<
+				"leftchild值为  " << father->leftchild->value << endl <<
+				"rightchild值为  " << father->rightchild->value << endl<<endl;
+		}
+		else if(isvalue(postfix.elem[a]))
+		{
+			cout << "新数值节点  " << postfix.elem[a] << "  已建立\n";
+			binaryTreeNode* x=new binaryTreeNode;
+			x->nodepush(postfix.elem[a]);
+			temp.push(x);
+		}
+	}
+	newtree.root = temp.get_top();
+	newtree.root->rootize();//标记根节点 
+	set_depth(newtree.root);//标记各节点深度
+	return newtree;
+}
+int main()
+{
+	stack<char> infix;
+	char op;
+	cout << "请在下面输入中缀形式的表达式,并以字符'0'结尾\n\n";
+	while ((cin >> op)&&(op!='0'))
+	{
+		infix.push(op);
+	}
+	cout << "\n\n开始处理\n\n";
+	stack<char> postfix = trans(infix, 'p');
+	system("pause");
+	binaryTree newtree=buildtree(postfix);
+	system("pause");
+	newtree.TreePrint();
+	system("pause");
+	cout << "\n程序结束\n";
+	return 0;
+}
