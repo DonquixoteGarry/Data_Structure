@@ -191,7 +191,7 @@ public:
 	void visit()
 		//访问
 	{
-		cout << setw(depth * 4) << value<<endl;
+		cout << setw(long long int(depth) * 4) << value<<endl;
 	}
 	void print_all_subtree()
 	{
