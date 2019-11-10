@@ -195,7 +195,7 @@ public:
 	}
 	void print_all_subtree()
 	{
-		//遍历二叉树
+		//  右->根->左 次序 遍历二叉树
 		if(rightchild!=NULL)rightchild->print_all_subtree();
 		visit();
 		if (leftchild != NULL)leftchild->print_all_subtree();
