@@ -178,12 +178,12 @@ public:
 		depth = 0;
 		value = 0;
 	}
-	void nodepush(char new_value)
+	void node_push(char new_value)
 	{
 		
 		value = new_value;
 	}
-	void rootize()
+	void rootlize()
 		//树根化
 	{
 		isroot = true;
@@ -191,11 +191,11 @@ public:
 	void visit()
 		//访问
 	{
-		cout << setw(long long int(depth) * 4) << value<<endl;
+		cout << setw(long long int(depth)*4) << value<<endl;
 	}
 	void print_all_subtree()
 	{
-		//  右->根->左 次序 遍历二叉树
+		//遍历二叉树
 		if(rightchild!=NULL)rightchild->print_all_subtree();
 		visit();
 		if (leftchild != NULL)leftchild->print_all_subtree();
@@ -238,14 +238,14 @@ class binaryTree
 public:
 	binaryTreeNode* root;
 	binaryTree() {root = NULL;}
-	void TreePrint()
+	void tree_print()
 	{
 		cout << "\n----------开始打印二叉树----------\n";
 		root->print_all_subtree();
 		cout << "\n----------二叉树打印完毕----------\n";
 	}
 };
-binaryTree buildtree(stack<char> postfix)
+binaryTree build_tree(stack<char> postfix)
 { 
 	binaryTree newtree; 
 	stack<binaryTreeNode*> temp;
@@ -256,15 +256,15 @@ binaryTree buildtree(stack<char> postfix)
 		{
 			cout << "新运算符节点  "<< postfix.elem[a] <<"  已建立\n";
 			binaryTreeNode* child1 = new binaryTreeNode;
-			//child1->nodepush(temp.get_top()->value);
+			//child1->node_push(temp.get_top()->value);
 			child1=temp.get_top();
 			temp.nodepop();
 			binaryTreeNode* child2 = new binaryTreeNode;
-			//child2->nodepush(temp.get_top()->value);
+			//child2->node_push(temp.get_top()->value);
 			child2 = temp.get_top();
 			temp.nodepop();
 			binaryTreeNode* father = new binaryTreeNode;
-			father->nodepush(postfix.elem[a]);
+			father->node_push(postfix.elem[a]);
 			born(father, child2, child1);
 			temp.push(father);
 			cout << "\n\n新节点树结构建立完成\n根节点值为  " << father->value << endl <<
@@ -275,12 +275,12 @@ binaryTree buildtree(stack<char> postfix)
 		{
 			cout << "新数值节点  " << postfix.elem[a] << "  已建立\n";
 			binaryTreeNode* x=new binaryTreeNode;
-			x->nodepush(postfix.elem[a]);
+			x->node_push(postfix.elem[a]);
 			temp.push(x);
 		}
 	}
 	newtree.root = temp.get_top();
-	newtree.root->rootize();//标记根节点 
+	newtree.root->rootlize();//标记根节点 
 	set_depth(newtree.root);//标记各节点深度
 	return newtree;
 }
@@ -296,10 +296,18 @@ int main()
 	cout << "\n\n开始处理\n\n";
 	stack<char> postfix = trans(infix, 'p');
 	system("pause");
-	binaryTree newtree=buildtree(postfix);
+	binaryTree newtree=build_tree(postfix);
 	system("pause");
-	newtree.TreePrint();
+	newtree.tree_print();
 	system("pause");
 	cout << "\n程序结束\n";
 	return 0;
 }
+
+/*
+输入范例:
+
+a+(b+c)*(d+e)
+0
+
+*/
