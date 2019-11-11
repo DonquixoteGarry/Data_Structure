@@ -114,6 +114,13 @@ public:
 };
 stack<char> trans(stack<char> infix,char _name)
 {//带括号的中缀表达式infix转化为无括号后缀表达式postfix
+/*
+1）infix[i]=='('，压入temp栈
+2）infix[i]==')'，弹出temp栈中元素，依次压入postfix栈，直到预备弹出的是‘(’为止，delete掉‘(’
+3）infix[i]=+-*/，如果temp.top=0，+-*/直接入temp栈；否则temp栈中level(+-*/)>= infix[i]的出栈，该运算符入temp栈
+4）infix[i]=字母，压入postfix栈
+5）infix遍历完成，最后把temp栈中剩余元素依次压入postfix
+*/
 	stack<char> temp;
 	stack<char> postfix;
 	for (int i = 0; i < infix.top; i++)
@@ -247,6 +254,12 @@ public:
 };
 binaryTree build_tree(stack<char> postfix)
 { 
+/*
+postfix栈借助temp栈转化为算式二叉树
+1）postfix[i]=数字，入temp栈
+2）postfix[i]=运算符，temp栈中弹出两个值作为该运算符的子树，再将带有子树的运算符入栈
+3）postfix最后一位一定为运算符，操作方法如2）
+*/
 	binaryTree newtree; 
 	stack<binaryTreeNode*> temp;
 	int _len = strlen(postfix.elem);
