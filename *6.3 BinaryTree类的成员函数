@@ -18,6 +18,65 @@
 
 /*
 二叉树建树branch函数未完成
+void branch(binaryTreeNode* _root, char* char_list, int _position)
+{
+	//用所给字符串在树根上按先序遍历(根左右)顺序建立二叉树
+	//用字符'0'直接建立叶节点'0',用字符'#'结束总进程
+
+	//_position初始值为0
+	binaryTreeNode* work_node = _root;
+	while(char_list[_position] != '#')
+	{
+		if (work_node == _root)
+		{
+			_root->node_push(char_list[_position]);
+			_root->leftchild = new binaryTreeNode;
+			work_node = work_node->leftchild;
+			work_node->thefather =_root;
+			work_node->po = 'l';
+			_position++;
+		}
+		else
+		{
+			if (char_list[_position] == '0')
+			{
+				if ((work_node->po == 'l'))
+				{//为左节点
+					work_node->node_push('0');
+					work_node->thefather->rightchild = new binaryTreeNode;
+					binaryTreeNode* temp = work_node->thefather;
+					work_node = work_node->thefather->rightchild;
+					work_node->thefather = temp;
+					work_node->po = 'r';
+					_position++;
+				}
+				if (work_node->po == 'r')
+				{
+					work_node->node_push('0');
+					binaryTreeNode* tmp = work_node;
+					tmp = tmp->thefather->thefather;
+					tmp->rightchild = new binaryTreeNode;
+					work_node = tmp->rightchild;
+					work_node->thefather=tmp;
+					work_node->po = 'r';
+					_position++;
+				}
+			}
+			else
+			{
+				work_node->node_push(char_list[_position]);
+				work_node->leftchild = new binaryTreeNode;
+				binaryTreeNode* temp = work_node;
+				work_node = work_node->leftchild;
+				work_node->thefather = temp;
+				work_node->po = 'l';
+				_position++;
+			}
+		}
+	}
+	work_node->node_push('#');
+	set_depth(_root);
+}
 */
 
 #include<iostream>
