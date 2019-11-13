@@ -1,5 +1,5 @@
 /*
-根据下面的假设，重新编写类maxHeap的方法
+根据下面的假设，重新编写 最大堆(maxHeap)类 的方法
 
 1) 创建堆时，应提供两个元素maxElement和minElement，堆中元素都大于minElement，小于maxElement
 2) 一个有n个元素的堆需要一个数组heap[0:2n+1]
