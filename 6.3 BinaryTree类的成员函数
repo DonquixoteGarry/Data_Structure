@@ -1,0 +1,323 @@
+/*
+
+编写二叉树类(Binary tree)的成员函数，分别实现以下功能：
+
+1.统计二叉树的叶节点的数目
+
+2.交换二叉树中所有节点的左右子树
+
+3.按层次顺序遍历二叉树：首先访问根节点，然后是它的两个孩子节点，然后是孙子节点，依此类推
+
+4.求二叉树的宽度，即同一层次上最多的节点数
+
+要求:
+以任意可行的方式输入一棵二叉树，程序依次显示上述各项处理的结果
+
+*/
+
+
+
+#include<iostream>
+#include<cstring>
+#include<iomanip>
+using namespace std;
+class binaryTreeNode
+{
+public:
+	char value;
+	int depth;
+	//depth深度,根节点深度为0
+	binaryTreeNode* leftchild;
+	binaryTreeNode* rightchild;
+	binaryTreeNode* thefather;
+	binaryTreeNode()
+	{
+		leftchild = NULL;
+		rightchild = NULL;
+		thefather = NULL;
+		depth = -1;
+		value = '~';
+	}
+	void node_push(char new_value)
+	{
+		value = new_value;
+	}
+	void rootlize()
+	{//树根化
+		depth = 0;
+	}
+	void visit()
+	{//访问
+		cout << setw(long long int(depth) * 4) << value << endl;
+	}
+	void print_all_subtree()
+	{//右根左遍历二叉树
+		if (rightchild != NULL)rightchild->print_all_subtree();
+		visit();
+		if (leftchild != NULL)leftchild->print_all_subtree();
+		return;
+	}
+};
+void set_depth(binaryTreeNode* __root)
+{//depth值遍历置值
+	if (__root->depth != 0)
+	{
+		__root->depth = __root->thefather->depth + 1;
+		if (__root->leftchild != NULL)set_depth(__root->leftchild);
+		
+		if (__root->rightchild != NULL)set_depth(__root->rightchild);
+	}
+	else
+	{
+		if (__root->leftchild != NULL)set_depth(__root->leftchild);
+		if (__root->rightchild != NULL)set_depth(__root->rightchild);
+	}
+}
+void create_in(binaryTreeNode* _root_father,binaryTreeNode* _root, bool isleft)
+{//在根节点的基础上,递归建立二叉树,
+	//变量isleft用于确认父子节点具体关系(为true则为左孩子,为false则为右孩子)
+	_root = new binaryTreeNode;
+	char ch;
+	cin >> ch;
+	if (ch == '0')
+	{
+		if (isleft == true)cout << "节点 " << _root_father->value << " 的左子树为空!" << endl;
+		if (isleft == false)cout << "节点 " << _root_father->value << " 的右子树为空!" << endl;
+		delete _root;
+		return;
+	}
+	else
+	{
+		_root->node_push(ch);
+		_root->thefather = _root_father;
+		if (isleft==true)
+		{
+			_root_father->leftchild = _root;
+			cout << "节点 " << _root_father->value << " 的左子节点 " << ch << " 已建立" << endl;
+		}
+		else if (isleft==false)
+		{
+			_root_father->rightchild = _root;
+			cout << "节点 " << _root_father->value << " 的右子节点 " << ch << " 已建立" << endl;
+		}
+		create_in(_root,_root->leftchild,true);
+		create_in(_root,_root->rightchild,false);
+	}
+}
+void create_first(binaryTreeNode* _root,bool* isok)
+{//建立根节点,并向函数create_in递归
+	//变量isok标志建树是否成功,结果向branch函数传递
+	char ch;
+	cin >> ch;
+	if (ch == '0')
+	{
+		_root = NULL;
+		cout << "根节点建立失败" << endl;
+		*isok = false;
+		return;
+	}
+	else
+	{
+		if (_root == NULL)_root = new binaryTreeNode;
+		_root->node_push(ch);
+		cout << "根节点" << ch << "已建立" << endl;
+		create_in(_root, _root->leftchild,true);
+		create_in(_root, _root->rightchild,false);
+	}
+}
+void branch(binaryTreeNode* _root,bool *isok)
+{//建树函数branch
+	//用所给字符串在树根上按先序遍历(根左右)顺序建立二叉树
+	//用字符'0'创建空子树
+	create_first(_root,isok);
+	if (*isok == false)return;
+	set_depth(_root);
+}
+void leaf_count(binaryTreeNode* _root, int *counter_num)
+{//以单节点为根的子树全叶节点统计
+	if (_root->rightchild != NULL)leaf_count(_root->rightchild, counter_num);
+	if ((_root->rightchild == NULL) && (_root->leftchild == NULL))
+	{
+		(*counter_num)++;
+	}
+	if (_root->leftchild != NULL)leaf_count(_root->leftchild, counter_num);
+}
+void swap_all(binaryTreeNode* _root)
+{//以单节点为根的全子树交换
+	if ((_root->rightchild != NULL) && (_root->leftchild == NULL))
+	{
+		_root->leftchild = _root->rightchild;
+		_root->rightchild = NULL;
+		swap_all(_root->leftchild);
+	}
+	else if ((_root->rightchild != NULL) && (_root->leftchild != NULL))
+	{
+		binaryTreeNode* new_one = _root->leftchild;
+		_root->leftchild = _root->rightchild;
+		_root->rightchild =new_one;
+		swap_all(_root->leftchild);
+		swap_all(_root->rightchild);
+	}
+	if ((_root->rightchild == NULL) && (_root->leftchild != NULL))
+	{
+		_root->rightchild = _root->leftchild;
+		_root->leftchild = NULL;
+		swap_all(_root->rightchild);
+	}
+}
+void get_deepest(binaryTreeNode* _root, int* the_deepest)
+{//以单节点为根的全子树最大深度求解
+	if (_root->depth > *the_deepest)*the_deepest = _root->depth;
+	if (_root->leftchild != NULL)get_deepest(_root->leftchild, the_deepest);
+	if (_root->rightchild != NULL)get_deepest(_root->rightchild, the_deepest);
+}
+void print_in_order_of_depth(binaryTreeNode* _root, int goal_depth)
+{//将以单节点为根的全子树中depth值等于特定值的节点输出
+	if (_root->rightchild != NULL)
+	{
+		print_in_order_of_depth(_root->rightchild, goal_depth);
+	}
+	if (_root->depth == goal_depth)
+	{
+		cout << _root->value << "  ";
+	}
+	if (_root->leftchild != NULL)
+	{
+		print_in_order_of_depth(_root->leftchild, goal_depth);
+	}
+}
+void get_width_of_depth(binaryTreeNode* _root, int* _width,int _depth)
+{//以单节点为根的全子树中depth值等于特定值的节点数目统计
+	if (_root->rightchild != NULL)
+	{
+		get_width_of_depth(_root->rightchild, _width, _depth);
+	}
+	if (_root->depth == _depth)
+	{
+		(*_width)++;
+	}
+	if (_root->leftchild != NULL)
+	{
+		get_width_of_depth(_root->leftchild, _width, _depth);
+	}
+}
+class binaryTree
+{
+public:
+	binaryTreeNode* root;
+	binaryTree() 
+	{
+		root = new binaryTreeNode;
+		root->rootlize();
+	}
+	void tree_leaf_count()
+	{
+		cout << "\n----------开始统计叶节点数----------\n";
+		int the_counter_num=0;
+		int* counter_num= &the_counter_num;
+		leaf_count(root, counter_num);
+		cout << "\n叶节点数为:"<< the_counter_num <<"\n";
+		cout << "\n----------叶节点数统计完毕----------\n";
+		return ;
+	}
+	void tree_swap_all()
+	{
+		cout << "\n----------开始交换子树----------\n";
+		swap_all(root);
+		cout << "\n----------子树交换完毕----------\n";
+		return;
+	}
+	void print_by_depth()
+	{
+		int the_depth=0;
+		int* dep = &the_depth;
+		get_deepest(root, dep);
+		cout << "\n----------开始按层次遍历----------\n";
+		cout << "\n此二叉树最大深度为" << the_depth << endl;
+		for (int i = 0; i <= the_depth; i++)
+		{
+			cout << "\n深度为" << i << "的节点有 :";
+			print_in_order_of_depth(root, i);
+			cout << endl;
+		}
+		cout << "\n----------层次遍历结束----------\n";
+	}
+	void get_width()
+	{
+		int max_width,max_depth;
+		max_width = 0;
+		max_depth = 0;
+		int* max_dep = &max_depth;
+		get_deepest(root, max_dep);
+		cout << "\n----------开始求二叉树宽度----------\n";
+		for (int i = 0; i <= max_depth; i++)
+		{
+			int new_width;
+			new_width = 0;
+			int* new_wid = &new_width;
+			get_width_of_depth(root, new_wid, i);
+			if (new_width > max_width)max_width = new_width;
+		}
+		cout << "\n二叉树宽度为" << max_width << endl;
+		cout << "\n----------宽度求值结束----------\n";
+	}
+	void build_tree()
+	{
+		cout << "\n----------开始建立二叉树----------\n";
+		bool is_ok;
+		bool *isok=&is_ok;
+		is_ok= true;
+		branch(root, isok);
+		if (*isok == false)
+		{
+			cout << "\n----------二叉树建立失败!----------\n";
+		}
+		else 
+		{
+			cout << "\n----------二叉树建立成功----------\n";
+		}
+	}
+	void tree_print()
+	{
+		cout << "\n----------开始打印二叉树----------\n";
+		root->print_all_subtree();
+		cout << "\n----------二叉树打印完毕----------\n";
+	}
+};
+int main()
+{
+	binaryTree tree1;
+	cout << "请输入一串字符序列\n\nps.\n1.每个字符代表一个节点,按先序遍历顺序加入二叉树中\n";
+	cout << "2.字符'0'表示直接建立空子树\n";
+	cout << "3.若第一个字符为'0',则根节点默认值为'~'\n";
+	tree1.build_tree();
+	char op;
+	while (1)
+	{
+		cout << "\n0:程序结束\n1:统计叶节点\n2:全子树交换\n3:按层次遍历\n4:求全树宽度\n5:全树打印\n\n";
+		cin >> op;
+		switch (op)
+		{
+		case'0':
+			return 0;
+		case'1':
+			tree1.tree_leaf_count();
+			break;
+		case'2':
+			tree1.tree_swap_all();
+			break;
+		case'3':
+			tree1.print_by_depth();
+			break;
+		case'4':
+			tree1.get_width();
+			break;
+		case'5':
+			tree1.tree_print();
+			break;
+		default:
+			cout << "\n----------非法输入!----------\n";
+			break;
+		}
+	}
+}
