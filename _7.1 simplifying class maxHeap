@@ -10,3 +10,150 @@
 这些假设应该使push和pop的代码简化
 
 */
+
+
+#include<iostream>
+#include<cstring>
+#include<iomanip>
+#include<cmath>
+#define MAXN 65535
+#define MINN -65536
+#define MID 90
+#define sys system("pause")
+using namespace std;
+template<class T>
+class maxHeap
+{
+public:
+	T *elems;
+	int max_size,curr_size;
+	int max_elem, min_elem;
+	maxHeap(int maxsize,int _max_elem=MAXN,int _min_elem=MINN)
+	{
+		elems = new T[maxsize];
+		max_size = maxsize;
+		curr_size = 0;
+		max_elem = _max_elem;
+		min_elem = _min_elem;
+	}
+	void initialize()
+	{
+		for (int i = curr_size+1; i <= max_size; i++)elems[i] = MINN;
+		elems[0] = MAXN;
+		return;
+	}
+	bool check(T check_value)
+	{//检验是否重复,不重复为true
+		for (int i = 1; i <= curr_size; i++)
+		{
+			if (check_value == elems[i])return false;
+		}
+		return true;
+	}
+	void push(T push_value)
+	{
+		if (curr_size == max_size)
+		{
+			cout << "\n>>>ERROR! FULL! PUSH FAIL!\n";
+			return;
+		}
+		else if (check(push_value) == false)
+		{
+			cout << "\n>>>ERROR! THE SAME VALUE! PUSH FAIL!\n";
+			return;
+		}
+		else
+		{
+			int push_posi;
+			if (curr_size == 0)
+			{
+				elems[1] = push_value;
+				cout << ">>>PUSH SUCCESS!\nPUSH " << elems[1];
+				curr_size++; 
+				return;
+			}
+			else
+			{
+				push_posi = curr_size;
+				while (push_value > elems[push_posi / 2])
+				{
+					elems[push_posi] = elems[push_posi / 2];
+					push_posi = push_posi / 2;
+				}
+				elems[push_posi] = push_value;
+				cout << ">>>PUSH SUCCESS!\nPUSH " << elems[push_posi];
+				curr_size++;
+				return;
+			}
+		}
+	}
+	void pop()
+	{
+		if (curr_size == 0)
+		{
+			cout << "\n>>>ERROR!EMPTY!POP FAIL!\n";
+			return;
+		}
+		int max,obj_father=1,obj=2;
+		max = elems[1];
+		elems[1] = elems[curr_size];
+		elems[curr_size] = MINN;
+		while (obj <= curr_size)
+		{
+			if (elems[2 * obj_father + 1] > elems[2 * obj_father])
+				obj =obj+ 1;
+			else
+			{
+				if (obj > obj_father)
+				{
+					T temp= elems[obj];
+					elems[obj] = elems[obj_father];
+					elems[obj_father] = temp;
+				}
+				obj_father = obj;
+				obj = 2 * obj_father;
+			}
+		}
+		curr_size--;
+		cout << ">>>POP SUCCESS!\nPOP "<<max<<endl;
+		return;
+	}
+	void print()
+	{
+		int level = 1,level_start=1;
+		cout << "\n▼▼▼BINARY TREE PRINT START▼▼▼\n";
+		for (int i = 1; i <= max_size; i++)
+		{
+			if (i == level_start)
+			{
+				cout << "\n\nLEVEL " << level << " : ";
+				level++;
+				level_start = int(pow(2, level - 1));
+			}
+			long long int a = int (MID / (pow(2, level-1)));
+			cout<<setw(a)<<" ";
+			if (elems[i] == MINN)  cout << "()"; 
+			else cout << "(" << elems[i] << ")"; 
+			cout<<setw(a)<<" ";
+		}
+		cout << "\n\n▲▲▲BINARY TREE PRINT END▲▲▲\n";
+	}
+};
+int main()
+{
+	maxHeap<int> heap1(31);
+	heap1.initialize();
+	for (int i = 1; i <=10; i++)
+	{
+		heap1.push(i);
+		//heap1.initialize();
+		heap1.print();
+		sys;
+	}
+	for (int i = 10; i > 1; i=i-2)
+	{
+		heap1.pop();
+		heap1.print();
+		sys;
+	}
+}
