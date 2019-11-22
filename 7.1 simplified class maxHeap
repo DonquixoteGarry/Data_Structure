@@ -1,0 +1,176 @@
+/*
+根据下面的假设，重新编写 最大堆(maxHeap)类 的方法
+
+1) 创建堆时，应提供两个元素maxElement和minElement，堆中元素都大于minElement，小于maxElement
+2) 一个有n个元素的堆需要一个数组heap[0:2n+1]
+3) n个元素按本节描述的方法存储在heap[1:n]中
+4) maxElement存储在heap[0]中
+5) minElement存储在heap[n+1:2n+1]中
+
+这些假设应该使push和pop的代码简化
+
+*/
+
+
+#include<iostream>
+#include<cstring>
+#include<iomanip>
+#include<cmath>
+#define MAXN 65536
+#define MINN -65536
+#define MID 90
+#define sys system("pause")
+using namespace std;
+template<class T>
+class maxHeap
+{
+public:
+	T *elems;
+	int max_size,curr_size;
+	int max_elem, min_elem;
+	maxHeap(int max_level,int _max_elem=MAXN,int _min_elem=MINN)
+	{
+		elems = new T[int(pow(2,max_level+1)-1)];
+		max_size = int(pow(2, max_level) - 1);
+		curr_size = 0;
+		max_elem = _max_elem;
+		min_elem = _min_elem;
+	}
+	void initialize()
+	{
+		//初始化堆,并预留出最下层空间
+		//最下层数据恒为MAXN,无法修改,用于堆重整的暂停
+		for (int i = 1; i <= max_size*2-1; i++)elems[i] = MINN;
+		elems[0] = MAXN;
+		return;
+	}
+	bool check(T check_value)
+	{
+		//检验push的值是否重复,不重复为true
+		for (int i = 1; i <= curr_size; i++)
+		{
+			if (check_value == elems[i])return false;
+		}
+		return true;
+	}
+	void push(T push_value)
+	{
+		if (curr_size == max_size)
+		{
+			cout << "\n>>>ERROR! FULL! PUSH FAIL!\n";
+			return;
+		}
+		else if (check(push_value) == false)
+		{
+			cout << "\n>>>ERROR! THE SAME VALUE! PUSH FAIL!\n";
+			return;
+		}
+		else
+		{
+			int push_posi;
+			push_posi = curr_size+1;
+			//开始堆重整
+			while (push_value > elems[push_posi / 2])
+			{//子大于父,父子交换
+				elems[push_posi] = elems[push_posi / 2];
+				push_posi = push_posi / 2;
+			}
+			elems[push_posi] = push_value;
+			cout << ">>>PUSH "<<elems[push_posi]<<" SUCCESS! "<<endl;
+			curr_size++;
+			return;
+		}
+	}
+	void pop()
+	{
+		if (curr_size == 0)
+		{
+			cout << "\n>>>ERROR!EMPTY!POP FAIL!\n";
+			return;
+		}
+		if (curr_size == 1)
+		{
+			elems[1] = MINN;
+			curr_size--;
+			cout << "\n>>>POP SUCCESS!\n";
+			return;
+		}
+		//用堆底的值赋给堆顶
+		elems[1] = elems[curr_size];
+		elems[curr_size] = MINN;
+		curr_size--;
+		//开始堆重整
+		int obj_father = 1, obj = 2;
+		while (elems[obj] > MINN)
+		{
+			if (elems[obj] < elems[obj + 1])
+			{
+				//右儿子大于左儿子,节点下降方向指向右子树
+				obj++;
+			}
+			if (elems[obj_father] < elems[obj])
+			{
+				//子大于父,父子交换
+				T temp = elems[obj_father];
+				elems[obj_father] = elems[obj];
+				elems[obj] = temp;
+			}
+			//节点下降
+			obj_father = obj;
+			obj = obj * 2;
+		}
+		cout << "\n>>>POP SUCCESS!"<<endl;
+		return;
+	}
+	void print()
+	{
+		//依层次输出堆的元素值
+		int level = 1,level_start=1;
+		cout << "\n------print start------";
+		cout << "\nnow size = " << curr_size ;
+		cout << "\nmax size = " << max_size;
+		for (int i = 1; i <= curr_size; i++)
+		{
+			if (i == level_start)
+			{
+				cout << "\n\nlevel " << level << " : ";
+				level++;
+				level_start = int(pow(2, level - 1));
+			}
+			//参数MID控制堆打印时的堆顶的水平位置
+			long long int a = int (MID / (pow(2, level-1)));
+			cout<<setw(a)<<" ";
+			if (elems[i] != MINN)cout <<elems[i] ; 
+			cout<<setw(a)<<" ";
+		}
+		cout << "\n------print end------\n\n";
+	}
+};
+int main()
+{
+	maxHeap<int> heap1(4);
+	heap1.initialize();
+	int input;
+	while ((cout << "please give the input to PUSH (but 0 to POP and 666 to END)\n")&&(cin>>input))
+	{
+	
+		if ((input != 0)&&(input!=666))
+		{
+			cout << "\n<<<NEW PUSH!!\n";
+			heap1.push(input);
+			heap1.print();
+		}
+		else if(input==0)
+		{
+			cout << "\n<<<NEW POP!!\n"; 
+			heap1.pop();
+			heap1.print();
+		}
+		else
+		{
+			cout << "\nPROGRAM IS OVER...............\n";
+			sys;
+			return 0;
+		}
+	}
+}
