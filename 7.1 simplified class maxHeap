@@ -13,7 +13,6 @@
 
 
 #include<iostream>
-#include<cstring>
 #include<iomanip>
 #include<cmath>
 #define MAXN 65536
