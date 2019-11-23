@@ -1,3 +1,177 @@
 /*
 设计一个完整的基于霍夫曼编码(Huffman Coding)的压缩-解压缩软件包
 */
+
+
+
+#include<iostream>
+#include<iomanip>
+#include<cmath>
+#include<cstring>
+class huffman_code_node
+{//huffman编码方法类
+public:
+	char letter;
+	int times;
+	//ok用于区分虚实节点,实节点为true
+	bool ok;
+	//前后节点用于建huffman编码表
+	huffman_code_node* last;
+	huffman_code_node* next;
+	//左右子节点用于建huffman树
+	huffman_code_node* leftchild;
+	huffman_code_node* rightchild;
+	huffman_code_node(int combine_times)
+	{//建立huffman树的中间(虚)节点,不可编码
+		huffman_code_node* last=NULL;
+		huffman_code_node* next = NULL;
+		huffman_code_node* leftchild = NULL;
+		huffman_code_node* rightchild = NULL;
+		times = combine_times;
+		ok = false;
+	}
+	huffman_code_node(char _letter)
+	{//建立无序编码表的实节点
+		huffman_code_node* last = NULL;
+		huffman_code_node* next = NULL;
+		huffman_code_node* leftchild = NULL;
+		huffman_code_node* rightchild = NULL;
+		letter = _letter;
+		times = 1;
+		ok = true;
+	}
+	huffman_code_node(char _letter, int _times)
+	{//建立有序编码表的实节点
+		huffman_code_node* last = NULL;
+		huffman_code_node* next = NULL;
+		huffman_code_node* leftchild = NULL;
+		huffman_code_node* rightchild = NULL;
+		letter = _letter;
+		times = _times;
+		ok = true;
+	}
+	void plus()
+	{
+		times++;
+		return;
+	}
+};
+class huffman_code_list
+{//huffman编码表类
+public:
+	huffman_code_node* head;
+	huffman_code_node* tail;
+	huffman_code_list()
+	{
+		head = NULL;
+		tail = NULL;
+	}
+	void push(char new_char)
+	{
+		if (head == NULL)
+		{
+			huffman_code_node* temp = new huffman_code_node(new_char);
+			head = temp;
+			tail = temp;
+			return;
+		}
+		else
+		{
+			huffman_code_node* curr = head;
+			for (curr = head; curr ->next!= NULL; curr = curr->next)
+			{
+				if (curr->letter == new_char)
+				{
+					curr->plus();
+					return;
+				}
+			}
+			huffman_code_node* temp = new huffman_code_node(new_char);
+			tail->next = temp;
+			temp->last = temp;
+			tail = temp;
+			return;
+		}
+	}
+	void push_in_order(char new_char, int new_times)
+	{//按出现次序排序插入节点,次数大的在前
+		if (head == NULL)
+		{
+			huffman_code_node* temp = new huffman_code_node(new_char,new_times);
+			head = temp;
+			tail = temp;
+			return;
+		}
+		else
+		{
+			if (new_times > head->times)
+			{
+				huffman_code_node* temp = new huffman_code_node(new_char, new_times);
+				temp->next = head;
+				head->last = temp;
+				head = temp;
+			}
+			else if (new_times < tail->times)
+			{
+				huffman_code_node* temp = new huffman_code_node(new_char, new_times);
+				tail->next = temp;
+				temp->last = temp;
+				tail = temp;
+			}
+			else
+			{
+				huffman_code_node* curr = head;
+				while (curr->next != tail)
+				{
+					huffman_code_node* temp= new huffman_code_node(new_char, new_times);
+					if ((curr->times >= new_times) && (curr->next->times <= new_times))
+					{
+						temp->next = curr->next;
+						curr->last = temp;
+						curr->next = temp;
+						temp->last = curr;
+					}
+				}
+			}
+		}
+	}
+	huffman_code_list* refresh()
+	{//建立新表,存储有序化huffman编码表
+		huffman_code_list* new_list = NULL;
+		huffman_code_node* curr = head;
+		for (curr = head; curr->next != NULL; curr = curr->next)
+		{
+			new_list->push_in_order(curr->letter, curr->times);
+		}
+	}
+};
+class huffman_tree
+{
+public:
+	huffman_code_list* code_list;
+	huffman_tree(huffman_code_list* sorted_code_list)
+	{//存储编码表,建huffman树
+		code_list = sorted_code_list;
+	}
+	void tree_build()
+	{//由Huffman编码表建Huffman树
+		while (code_list->head != code_list->tail)
+		{
+			huffman_code_node* image_node = new huffman_code_node(code_list->tail->times + code_list->tail->last->times);
+			code_list->tail->last->last = code_list->tail;
+			code_list->tail->next = image_node;
+			image_node = code_list->tail->last;
+			code_list = code_list->refresh();
+		}
+		return;
+	}
+	void huffman_print()
+	{//打印编码表
+		//先打印编码,再打印字符
+		
+	}
+};
+int main()
+{
+
+}
