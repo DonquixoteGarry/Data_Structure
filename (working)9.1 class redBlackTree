@@ -1,0 +1,12 @@
+/*
+
+设计一个c++类redBlackTree，它派生于抽象类bStree
+函数find，insert，delete的时间复杂度必须是O(log n)
+函数ascend的时间复杂度必须是O(n)
+
+ps.
+1）证明以上函数的时间复杂度
+2）insert和delete函数的实现必须采用本节的方法（第15章 平衡搜索树）
+3）编写所有函数的代码并检验其正确性
+
+*/
