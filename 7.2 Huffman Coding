@@ -4,6 +4,7 @@
 
 /*
 首先,建立文件"D://file1","D://file2"
+file1每次程序运行前需清空
 本程序没有实现二进制化,用字符输入输出
 */
 
@@ -32,16 +33,6 @@ public:
 		top--;
 		return temp;
 	}
-	int back_pop()
-	{
-		T temp = elem[0];
-		for (int i = 0; i < top-1; i++)
-		{
-			elem[i] = elem[i + 1];
-		}
-		top--;
-		return temp;
-	}
 };
 class huffman_node
 {
@@ -49,6 +40,7 @@ class huffman_node
  //last,next建频数链表
  //leftchild,rightchild,father建树
 //listnext建字母节点链表,用于搜索
+//left,right判断是否为左儿子/右儿子
  public:
 	char letter;
 	int times;
@@ -427,7 +419,6 @@ int main()
 	tree1.tree_build();
 	tree1.solve_list_print();
 	tree1.coding(ori);
-	system("pause");
 	tree1.solving();
 	return 0;
 }
