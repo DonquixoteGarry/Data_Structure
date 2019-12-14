@@ -1,0 +1,433 @@
+/*
+设计一个完整的基于霍夫曼编码(Huffman Coding)的压缩-解压缩软件包
+*/
+
+/*
+首先,建立文件"D://file1","D://file2"
+本程序没有实现二进制化,用字符输入输出
+*/
+
+#include<iostream>
+#include<fstream>
+#include<cstring>
+using namespace std;
+template<class T>
+class stack
+{
+public:
+	T* elem; 
+	int top = 0;
+	stack(int num = 300)
+	{
+		elem = new T[num];
+	}
+	void push(T a)
+	{
+		elem[top] = a;
+		top++;
+	}
+	int pop()
+	{
+		T temp = elem[top - 1];
+		top--;
+		return temp;
+	}
+	int back_pop()
+	{
+		T temp = elem[0];
+		for (int i = 0; i < top-1; i++)
+		{
+			elem[i] = elem[i + 1];
+		}
+		top--;
+		return temp;
+	}
+};
+class huffman_node
+{
+ //realnode区分树的中间节点和字符节点,字符节点为true
+ //last,next建频数链表
+ //leftchild,rightchild,father建树
+//listnext建字母节点链表,用于搜索
+ public:
+	char letter;
+	int times;
+	bool realnode;
+	huffman_node* last, * next,* leftchild, * rightchild, * father,*listnext;
+	bool left, right;
+	huffman_node() { realnode = false; }
+	huffman_node(huffman_node* left, huffman_node* right)
+	{
+		times = left->times + right->times;
+		letter = '\0';
+		realnode = false;
+		leftchild = left;
+		rightchild = right;
+		left->father = this;
+		right->father = this;
+		left->left = true;
+		right->right = true;
+	}
+	huffman_node(char _letter)
+	{//建立无序频数表的字符节点
+		letter = _letter;
+		times = 1;
+		realnode = true;
+		left = false;
+		right = true;
+	}
+	huffman_node(char _letter, int _times)
+	{//建立有序频数表的字符节点
+		letter = _letter;
+		times = _times;
+		realnode = true;
+		left = false;
+		right = true;
+	}
+	void plus()
+	{
+		times++;
+		return;
+	}
+};
+class nodelist
+{
+public:
+	huffman_node* head,*tail;
+	nodelist() 
+	{
+		head = NULL;
+		tail = NULL;
+	}
+	void append(huffman_node* newnode)
+	{
+		if (head == NULL)
+		{
+			newnode->listnext = NULL;
+			head = newnode;
+			tail = newnode;
+		}
+		else
+		{
+			tail->listnext = newnode;
+			tail = newnode;
+		}
+	}
+};
+class huffman_code_list
+{//huffman编码频数表类
+public:
+	huffman_node* head, * tail;
+	huffman_code_list()
+	{
+		head = NULL;
+		tail = NULL;
+	}
+	void push(char new_char)
+	{
+		if (head == NULL)
+		{
+			huffman_node* temp = new huffman_node(new_char);
+			head = temp;
+			tail = temp;
+			return;
+		}
+		else
+		{
+			huffman_node* curr = head;
+			int i = 1;
+			for (curr = head; curr != NULL; curr = curr->next)
+			{
+				if (curr->letter == new_char)
+				{
+					curr->plus();
+					return;
+				}
+				i++;
+			}
+			huffman_node* temp = new huffman_node(new_char);
+			tail->next = temp;
+			temp->last = tail;
+			tail = temp;
+			return;
+		}
+	}
+	void push_in_order(char new_char, int new_times)
+	{//按出现次序排序插入节点,次数大的在前,用于重排频数表
+		//用于频数表排序
+		if (head == NULL)
+		{
+			huffman_node* temp = new huffman_node(new_char, new_times);
+			head = temp;
+			tail = temp;
+			return;
+		}
+		else
+		{
+			if (new_times > head->times)
+			{
+				huffman_node* temp = new huffman_node(new_char, new_times);
+				temp->next = head;
+				head->last = temp;
+				head = temp;
+				return;
+			}
+			else if (new_times < tail->times)
+			{
+				huffman_node* temp = new huffman_node(new_char, new_times);
+				tail->next = temp;
+				temp->last = tail;
+				tail = temp;
+				return;
+			}
+			else
+			{
+				huffman_node* curr = head;
+				while (curr != tail)
+				{
+					huffman_node* temp = new huffman_node(new_char, new_times);
+					if ((curr->times >= new_times) && (curr->next->times <= new_times))
+					{
+						temp->next = curr->next;
+						curr->next->last = temp;
+						curr->next = temp;
+						temp->last = curr;
+						return;
+					}
+					curr = curr->next;
+				}
+			}
+		}
+	}
+	void push_in_order(huffman_node* newnode)
+	{//按出现次序排序插入节点,次数大的在前,用于重排频数表
+		//用于建huffman树
+		if (newnode->times > head->times)
+		{
+			newnode->next = head;
+			head->last = newnode;
+			head = newnode;
+			return;
+		}
+		else if (newnode->times < tail->times)
+		{
+			tail->next = newnode;
+			newnode->last = tail;
+			tail = newnode;
+			return;
+		}
+		else
+		{
+			huffman_node* curr = head;
+			while (curr != tail)
+			{
+				if ((curr->times >= newnode->times) && (curr->next->times <= newnode->times))
+				{
+					huffman_node* following = curr->next;
+					newnode->next = following;
+					following->last = newnode;
+					curr->next = newnode;
+					newnode->last = curr;
+					return;
+				}
+				curr = curr->next;
+			}
+		}
+	}
+	void print()
+	{
+		cout << "开始打印列表\n";
+		huffman_node* curr = head;
+		while (curr != NULL)
+		{
+			cout << curr->letter << " 出现 " << curr->times << " 次\n";
+			curr = curr->next;
+		}
+		cout << "列表打印完毕\n";
+	}
+	huffman_code_list* refresh()
+	{//建立新表,有序化huffman频数表
+		huffman_code_list* new_list = new huffman_code_list;
+		huffman_node* curr = head;
+		for (curr = head; curr != NULL; curr = curr->next)
+		{
+			new_list->push_in_order(curr->letter, curr->times);
+		}
+		return new_list;
+	}
+};
+class huffman_tree
+{
+public:
+	huffman_code_list* code_list;
+	nodelist nodelist1;
+	huffman_tree(huffman_code_list* sorted_code_list)
+	{//存储频数表
+		code_list = sorted_code_list;
+	}
+	void tree_build()
+	{//由Huffman频数表建Huffman树
+		huffman_node* image_node, * small, * second_small, * final;
+		while (1)
+		{//反复以两最小节点建父子树
+			if (code_list->head->next != code_list->tail)
+			{
+				small = code_list->tail;
+				second_small = code_list->tail->last;
+				final = code_list->tail->last->last;
+				code_list->tail = final;
+				final->next = NULL;
+				second_small->last = NULL;
+				image_node = new huffman_node(small, second_small);
+				code_list->push_in_order(image_node);
+			}
+			else
+			{
+				huffman_node* image_node;
+				image_node = new huffman_node(code_list->tail, code_list->head);
+				code_list->head = image_node;
+				code_list->tail = image_node;
+				return;
+			}
+		}
+	}
+	huffman_node* search(char target)
+	{//寻找目标字符target在Huffman树中的位置
+		for (huffman_node* curr = nodelist1.head; curr->listnext != NULL;curr=curr->listnext)
+		{
+			if (curr->letter == target)return curr;
+		}
+	}
+	void single_print(huffman_node* letter_node)
+	{//根据给出的单个字符在树中的指针屏幕打印二进制编码
+		huffman_node* work_node = letter_node;
+		int i = 0;
+		stack<char> stack2;
+		while (work_node->father != NULL)
+		{
+			if (work_node->left == true)
+			{
+				stack2.push('0');
+				i++;
+				work_node = work_node->father;
+			}
+			else
+			{
+				stack2.push('1');
+				i++;
+				work_node = work_node->father;
+			}
+		}
+		while (stack2.top != 0)cout << char(stack2.pop());
+		return;
+	}
+	void single_input(huffman_node* letter_node)
+	{//根据给出的单个字符在树中的指针文件打印二进制编码
+		huffman_node* work_node = letter_node;
+		ofstream one;
+		one.open("D://file1.txt",ios_base::out|ios::app);
+		stack<char> stack1;
+		while (work_node!=code_list->head)
+		{
+			if (work_node->left ==true)
+			{
+				stack1.push(0);
+				work_node = work_node->father;
+			}
+			else
+			{
+				stack1.push(1);
+				work_node = work_node->father;
+			}
+		}
+		while (stack1.top != 0)
+		{
+			one<<stack1.pop();
+		}
+		one.close();
+		return;
+	}
+	void all_get(huffman_node* _root)
+	{//递归
+		if (_root->realnode==true)
+		{
+			cout << "\n" << _root->letter << " : ";
+			nodelist1.append(_root);
+			//将所有字符节点连成链表便于搜索
+			single_print(_root);
+			return;
+		}
+		else
+		{
+			all_get(_root->leftchild);
+			all_get(_root->rightchild);
+		}
+	}
+	void solve_list_print()
+	{//打印全部编码表,内含递归函数all_get
+		cout << "\n开始打印解码表";
+		all_get(code_list->head);
+		cout << "\n解码表打印完毕\n";
+	}
+	void coding(char* origin)
+	{//编码函数
+		int k = 0;
+		int end = strlen(origin);
+		while (k < end)
+		{
+			cout <<"\n第 "<<k<<" 个字符为 "<< search(origin[k])->letter;
+			single_input(search(origin[k]));
+			k++;
+		}
+		return;
+	}
+	void solving()
+	{//解码函数,origin由0,1构成
+		cout << "\n开始解码\n";
+		huffman_node* work_node = code_list->head;
+		ifstream get;
+		get.open("D://file1.txt",ios_base::in);
+		ofstream deal;
+		deal.open("D://file2.txt",ios_base::out);
+		char a;
+		while (get >> a)
+		{
+			if (a =='0')
+			{
+				work_node = work_node->leftchild;
+				if (work_node->realnode == true)
+				{
+					deal << work_node->letter;
+					work_node = code_list->head;
+				}
+			}
+			else if(a=='1')
+			{
+				work_node = work_node->rightchild;
+				if (work_node->realnode == true)
+				{
+					deal << work_node->letter;
+					work_node = code_list->head;
+				}
+			}
+		}
+		get.close();
+		deal.close();
+		cout << "\n解码结束\n";
+	}
+};
+int main()
+{
+	huffman_code_list* list1=new huffman_code_list;
+	char* ori = new char[300];
+	cin.getline(ori, 300);
+	for (int n = 0; n < strlen(ori); n++)list1->push(ori[n]);
+	list1=list1->refresh();
+	huffman_tree tree1(list1);
+	tree1.tree_build();
+	tree1.solve_list_print();
+	tree1.coding(ori);
+	system("pause");
+	tree1.solving();
+	return 0;
+}
