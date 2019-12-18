@@ -3,3 +3,210 @@
 编写函数，计算平衡二叉搜索树（AVL tree）的高度，要求说明该函数是所有算法中最优的
 
 */
+
+
+
+#include <iostream>
+#define max(A,B) A>B?A:B
+#define TT template<class T>
+using namespace std;
+TT
+class node 
+{public:
+	T data;
+	node* lc;
+	node* rc;
+	int height;
+	node( T _value, node* _lc, node* _rc, int _height = 0)
+	{
+		data = _value;
+		lc = _lc;
+		rc = _rc;
+		height = _height;
+	}
+};
+TT
+class AVL {
+private:
+	node<T>* root;
+	void insert(const T& x, node<T>*& t);
+	void del(T value, node<T>*& t);
+public:
+	AVL() {
+		root = NULL;
+	}
+	int get_height(node<T>* t);
+	node<T>* get_root();
+	void insert(const T& x);
+	void RR(node<T>*& t);
+	void LL(node<T>*& t);
+	void RL(node<T>*& t);
+	void LR(node<T>*& t);
+	void print(node<T>* t);
+	void del(T value);
+	int AVL_height(node<T>* t);
+};
+
+TT
+int AVL<T>::get_height(node<T>* t) 
+{
+	return t == NULL ? -1 : t->height;
+}
+TT
+node<T>* AVL<T>::get_root() 
+{
+	return root;
+}
+TT
+void AVL<T>::insert(const T& x, node<T>*& t) 
+{
+	if (t == NULL) {
+		t = new node<T>(x, NULL, NULL);
+	}
+	else if (x < t->data) {
+		insert(x, t->lc);
+		if (get_height(t->lc) - get_height(t->rc) == 2) 
+		{
+			if (get_height(t->lc->lc) > get_height(t->lc->rc))
+				RR(t);
+			else LR(t);
+		}
+	}
+	else if (x > t->data) {
+		insert(x, t->rc);
+		if (get_height(t->rc) - get_height(t->lc) == 2) 
+		{
+			if (get_height(t->rc->lc) > get_height(t->rc->rc))
+				RL(t);
+			else LL(t);
+		}
+	}
+	t->height = max(get_height(t->lc), get_height(t->rc)) + 1;
+}
+TT
+void AVL<T>::insert(const T& x) 
+{
+	insert(x, root);
+}
+TT
+void AVL<T>::RR(node<T>*& t) 
+{
+	cout << "右单旋->";
+	node<T>* p = t->lc;
+	t->lc = p->rc;
+	p->rc = t;
+	t->height = max(get_height(t->lc), get_height(t->rc)) + 1;
+	p->height = max(get_height(p->lc), t->height) + 1;
+	t = p;
+}
+TT void AVL<T>::LL(node<T>*& t) 
+{
+	cout << "左单旋->";
+	node<T>* p = t->rc;
+	t->rc = p->lc;
+	p->lc = t;
+	t->height = max(get_height(t->lc), get_height(t->rc)) + 1;
+	p->height = max(get_height(p->rc), t->height) + 1;
+	t = p;
+}
+TT
+void AVL<T>::LR(node<T>*& t) 
+{
+	cout << "LR旋转->";
+	LL(t->lc);
+	RR(t);
+}
+TT
+void AVL<T>::RL(node<T>*& t) 
+{
+	cout << "RL旋转->";
+	RR(t->rc);
+	LL(t);
+}
+TT
+void AVL<T>::del(T value, node<T>*& t) 
+{
+	if (t == NULL)return;
+	if (value < t->data)del(value, t->lc);
+	else if (value > t->data)del(value, t->rc);
+	else {
+		if (t->lc != NULL && t->rc != NULL) {
+			node<T>* p = t->rc;
+			while (p->lc != NULL)p = p->lc;
+			t->data = p->data;
+			del(p->data, t->rc);
+		}
+		else {
+			node<T>* p = t->lc == NULL ? t->rc : t->lc;
+			delete t;
+			t = p;
+			return;
+		}
+	}
+	if (get_height(t->lc) - get_height(t->rc) == 2) {
+		if (get_height(t->lc->lc) > get_height(t->lc->rc))
+			RR(t);
+		else LR(t);
+	}
+	else if (get_height(t->rc) - get_height(t->lc) == 2) {
+		if (get_height(t->rc->lc) > get_height(t->rc->rc))
+			RL(t);
+		else LL(t);
+	}
+	t->height = max(get_height(t->lc), get_height(t->rc)) + 1;
+}
+TT
+void AVL<T>::del(T value) {
+	del(value, root);
+}
+TT
+int AVL<T>::AVL_height(node<T>* t) {
+	if (t == NULL)return 0;
+	int lh = 0, rh = 0;
+	lh = AVL_height(t->lc) + 1;
+	rh = AVL_height(t->rc) + 1;
+	return max(lh, rh);
+}
+TT
+void AVL<T>::print(node<T>* t) {
+	if (t != NULL) {
+		print(t->lc);
+		cout << t->data << " ";
+		print(t->rc);
+	}
+}
+int main() {
+	AVL<int> avl;
+	int tmp=0,tmp2=0,tmp3=0,tmp4=0,tmp5=0;
+	cout << endl << ">>>请依次输入非零整数(输入0即停止)" << endl << endl;
+	while(cin>>tmp)
+	{
+		if (tmp == 0)
+		{
+			break;
+		}
+		avl.insert(tmp);
+		tmp5 = tmp4;
+		tmp4 = tmp3;
+		tmp3 = tmp2;
+		tmp2 = tmp;
+		}
+	cout <<"结束"<< endl << endl << "AVL建树完毕";
+	cout << endl << endl << "原AVL树节点值排序(从小到大):";
+	avl.print(avl.get_root());
+	cout << endl << "原AVL树高度为: "<<avl.AVL_height(avl.get_root()) << endl;
+	cout << endl << "--------------------";
+	cout << endl << ">>>删除最后四个输入的数 : ";
+	cout<<tmp2<<"  "<<tmp3<< "  " << tmp4<< "  " << tmp5;
+	cout << endl << "开始删除 : ";
+	avl.del(tmp2);avl.del(tmp3);avl.del(tmp4);avl.del(tmp5);
+	cout << "结束" << endl;
+	cout << endl << ">>>删除完毕";
+	cout << endl << "--------------------";
+	cout << endl << "新AVL树节点值排序(从小到大):";
+	avl.print(avl.get_root());
+	cout << endl << "新AVL树高度为: " << avl.AVL_height(avl.get_root()) << endl;
+	cout << endl << endl;
+	system("pause");
+	return 0;
+}
