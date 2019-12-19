@@ -2,3 +2,121 @@
 使用BFS(广度优先搜索),编写课本程序16-8（寻"图"中两节点间到达路径）的另一个版本
 并证明此版本得到的路径最短
 */
+
+
+
+
+#include <iostream>
+#include <queue>
+#define MAXSIZE  50
+#define sys system("pause")
+using namespace std;
+int node_num, edge_num, start_posi, end_posi,len;
+vector<int> edge[MAXSIZE];
+//以矩阵形式存储边
+int way[MAXSIZE];
+//x(x>0)的最佳路径的下一节点为way[x]
+//way[0]存储路径长度
+bool vis[MAXSIZE];
+//节点的连通性
+bool deal()
+{//构建节点连接关系,存入way数组
+	len = 1;
+	queue<int> a;
+	vis[start_posi] = 1;
+	a.push(start_posi);
+	int tmp;
+	while (a.empty()==false) 
+	{//检验以tmp为起点的路径
+		int u;
+		tmp = a.front();
+		a.pop();
+		//队列首项移给tmp
+		if (tmp == end_posi)break;
+		//tmp = end_posi时,路径录入完毕
+		for (int i = 0; i < edge[tmp].size(); i++) 
+		{//检验tmp->u的路径
+			u = edge[tmp][i];
+			if (vis[u]==0) 
+			{
+				len++;
+				way[u] = tmp;
+				vis[u] = 1;
+				a.push(u);
+			}
+		}
+	}
+	if (len == 1)return false;
+	return true;
+}
+bool find_way(int _start, int _end) 
+{//调用deal函数,构建way数组
+	//补充vis数组和way[0]
+	way[1] = _start;
+	len = 1;
+	end_posi = _end;
+	for (int i = 0; i < node_num; i++)vis[i] = 0;
+	if (_start == _end || deal()) 
+	{
+		way[0] = 0;
+		return true;
+	}
+	return false;
+}
+void print_way(int x)
+{//使用way数组打印路径和路径长
+	if (x == start_posi)
+	{
+		cout << x << " ";
+		return;
+	}
+	print_way(way[x]);
+	cout << x << " ";
+	way[0]++;
+}
+int main() 
+{
+	cout << ">>>请输入节点的数量:(小于50)\n";
+	cin >> node_num;
+	cout << ">>>请输入边的数量:\n";
+	cin >> edge_num;
+	while (edge_num > (node_num-1)*node_num/2)
+	{
+		cout << "[ERROR]>>>边数描述错误,不得大于 ";
+		cout<<(node_num-1)*node_num/2<<" : \n";
+		cin >> edge_num;
+	}
+	int u, v;
+	cout << ">>>请依次输入各条边的两个端点:\n";
+	for (int i = 0; i < edge_num; i++) {
+		cout << ">>>第"<<i+1<<"条边:\n";
+		cin >> u >> v;
+		while (u>node_num|| v>node_num)
+		{
+			cout << "[ERROR]>>>该边描述错误,重新输入两端点:\n";
+			cin >> u >> v;
+		}
+		edge[u].push_back(v);
+		edge[v].push_back(u);
+		//补充u->v和v->u的指向关系
+	}
+	cout << ">>>请出发的节点和目标节点:\n";
+	cin >> start_posi >> end_posi;
+	while (start_posi > node_num || end_posi > node_num||start_posi==end_posi)
+	{
+		cout << "[ERROR]>>>该任务描述错误,重新输入起始点和目标点:\n";
+		cin >> start_posi >> end_posi;
+	}
+	if (find_way(start_posi, end_posi)) 
+	{
+		cout << "\n>>>解得:\n广度优先遍历路径:\n";
+		print_way(end_posi);
+		cout << "\n\n广度优先遍历路径长度:\n" << way[0] << endl;
+	}
+	sys;
+	return 0;
+}
+/*
+5 5
+1 2 1 3 2 4 2 5 4 5 3 5
+*/
