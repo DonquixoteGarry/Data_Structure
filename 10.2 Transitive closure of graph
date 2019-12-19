@@ -1,0 +1,107 @@
+/*
+设G是一个无向图。它的传递闭包(Transitive closure)是一个0/1数组tc
+当且仅当G存在一条边数大于1的从i到j的路径时，tc[i][j]=1
+编写一个方法graph::undirectedTC(),计算并返回G的传递闭包
+ps.
+1.方法的复杂性应为o(n^2),其中n是G的顶点数
+2.采用构件标记策略
+*/
+
+
+
+
+
+#include <iostream>
+#include <vector>
+#define sys system("pause")
+#define MAXSIZE 50
+using namespace std;
+int node_num, edge_num, label;
+bool vis[MAXSIZE];
+//vis[x]为节点x的工作状态,false为未开始赋值
+int flag[MAXSIZE];
+//flag[x]为节点x的构件标记值
+vector<int> edge[MAXSIZE];
+void sort_road(int x, bool *v, int label)
+{//寻找x节点与其他所有节点的连通性
+	v[x] = true;
+	flag[x] = label;
+	for (int i = 0; i < edge[x].size(); i++)
+	{
+		int y = edge[x][i];
+		if (v[y] == false) sort_road(y, v, label);
+		//v[y]=true则已被连通,x->y间停止寻路
+		//否则继续寻路,从y开始寻路
+	}
+}
+int put_label(bool *v)
+{//用label值给构件的flag标记
+	for (int i = 0; i < node_num; i++)v[i] = 0;
+	//清出vis数组空间存储所有节点状态
+	label = 0;
+	//设置初始label值
+	for (int i = 1; i <= node_num; i++) 
+	{
+		if (v[i] == 0) 
+		{
+			sort_road(i, v, label);
+			label++;
+			//刷新label值
+			//以区别不同时期赋值的构件
+		}
+	}
+	return label;
+}
+int main() 
+{
+	cout << ">>>请输入G的节点的数量:(小于50)\n";
+	cin >> node_num;
+	cout << ">>>请输入G的边的数量:\n";
+	cin >> edge_num;
+	while (edge_num > (node_num - 1)* node_num / 2)
+	{
+		cout << "[ERROR]>>>边数描述错误,不得大于 ";
+		cout << (node_num - 1) * node_num / 2 << " : \n";
+		cin >> edge_num;
+	}
+	int u, v;
+	cout << ">>>请依次输入G的各条边的两个端点:\n";
+	for (int i = 0; i < edge_num; i++) {
+		cout << ">>>第" << i + 1 << "条边:\n";
+		cin >> u >> v;
+		while (u > node_num || v > node_num)
+		{
+			cout << "[ERROR]>>>该边描述错误,重新输入两端点:\n";
+			cin >> u >> v;
+		}
+		edge[u].push_back(v);
+		edge[v].push_back(u);
+		//补充u->v和v->u的指向关系
+	}
+	put_label(vis);
+	cout << endl<<">>>OK\n>>>该无向图G的传递闭包如下:"<<endl<< "** ";
+	for (int i = 0; i <= node_num; i++) 
+	{
+		if (i == 0)
+		{
+			for (int j = 1; j <=node_num;j++)cout<<" (" << j <<")"<< " ";
+			cout << endl;
+		}
+		else
+		{
+			cout <<"("<< i<<")" << "  ";
+			for (int j = 1; j <= node_num; j++)
+			{
+				if (flag[i] == flag[j] && i != j)cout << "1    ";
+				else cout << "0    ";
+			}
+			cout << endl;
+		}
+	}
+	sys;
+	return 0;
+}
+/*
+5 5
+1 2 1 3 2 4 2 5 4 5 3 5
+*/
